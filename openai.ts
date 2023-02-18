@@ -1,4 +1,5 @@
-import {Configuration, CreateCompletionResponse, OpenAIApi, OpenAIFile} from 'openai';
+import { Configuration, OpenAIApi } from "openai";
+import { parseStreamData, extractLines } from "./utils";
 require("dotenv").config();
 
 const config = new Configuration({
@@ -6,65 +7,56 @@ const config = new Configuration({
 });
 const api = new OpenAIApi(config);
 
-// Insert before what a user types if they select this option.
+/**
+ * Insert before what a user types if they select this option.
+ * This will most likely become a separate piece of the application that only deals with
+ * engineering the prompts for more effective answers.
+ * Expecting lots of work with strings here with JS is more than equipped to handle
+ */
 const promptPrepend = [
-    {
-      type: "WHAT",
-      prepend: "What is a",
-    },
-    {
-      type: "ROLE",
-      prepend: "Assume the role of a",
-    },
-    {
-      type: "EXP",
-      explain: "Explain",
-    },
-  ];
+  {
+    type: "WHAT",
+    prepend: "What is a",
+  },
+  {
+    type: "ROLE",
+    prepend: "Assume the role of a",
+  },
+  {
+    type: "EXP",
+    explain: "Explain",
+  },
+];
 
-export async function promptResponse(promptText: string, promptChoice: number, model: string) {
-    try {
-        const completion = await api.createCompletion({
-          model: model,
-          prompt: `${promptPrepend[promptChoice].prepend} ${promptText}`,
-          max_tokens: 4000,
-          n: 10
-        });
-        console.log(completion.data.choices);
-        return completion.data.choices[0].text;
-      } catch (error: any) {
-        if (error.response) {
-          console.log(error.response.status);
-          console.log(error.response.data);
-        } else {
-          console.log(error.message);
-        }
-      }
-}
-
-export const extractLines = (data: Buffer) =>
-  data
-    .toString()
-    .split("\n")
-    .filter((line: string) => line.trim() !== "");
-
-export const parseStreamData = (data: Buffer) => {
-    const lines = extractLines(data);
-    for (const line of lines) {
-      const message = line.replace(/^data: /, "");
-      if (message === "[DONE]") {
-        return; // Stream finished
-      }
-      try {
-        const parsed = JSON.parse(message);
-        return parsed.choices[0].text;
-      } catch (error) {
-        console.error("Could not JSON parse stream message", message, error);
-      }
+export async function promptResponse(
+  promptText: string,
+  promptChoice: number,
+  model: string
+) {
+  try {
+    const completion = await api.createCompletion({
+      model: model,
+      prompt: `${promptPrepend[promptChoice].prepend} ${promptText}`,
+      max_tokens: 4000,
+      n: 10,
+    });
+    console.log(completion.data.choices);
+    return completion.data.choices[0].text;
+  } catch (error: any) {
+    if (error.response) {
+      console.log(error.response.status);
+      console.log(error.response.data);
+    } else {
+      console.log(error.message);
     }
+  }
 }
 
-export async function promptResponseStream(prompt: string, prefixChoice: number, model: string) {
+export async function promptResponseStream(
+  prompt: string,
+  prefixChoice: number,
+  model: string
+) {
   try {
     const res = await api.createCompletion(
       {
@@ -77,7 +69,7 @@ export async function promptResponseStream(prompt: string, prefixChoice: number,
       { responseType: "stream" }
     );
 
-    const result = res.data.on("data", (data: Buffer) => parseStreamData(data));
+    const result = res.data.on("data", (data: Buffer) => parseStreamData(extractLines(data)));
     return result;
   } catch (error: any) {
     if (error.response?.status) {
