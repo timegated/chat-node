@@ -3,22 +3,11 @@ import {
   promptResponse,
   promptResponseStream,
 } from "./openai";
-import { Readable, Transform, finished } from "stream";
+import { finished } from "stream";
+import { streamOn } from "./utils/stream-on";
 
 const app = express();
 const PORT = 3002;
-
-// util move out
-const streamOn = (result: any) => {
-  const readable = Readable.from(result);
-  const delay = new Transform({
-    transform(chunk, enc, cb) {
-        console.log(chunk);
-      setTimeout(cb, 100, null, chunk)
-    },
-  });
-  return readable.pipe(delay);
-};
 
 app.get("/answer", async (req: express.Request, res: express.Response) => {
   try {
