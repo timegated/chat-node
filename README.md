@@ -11,3 +11,10 @@ The goal here is to leverage the fairly new openai-node package so that we can e
 3. File analysis tool (think feeds).
 4. Code generation via a prompt editor with helpful hints/course correction.
 
+### To Run This Project
+
+- Clone the repository, follow format in .env.example. Find invite for openai and copy APIKey into env file that you create.
+
+- Run npm start. 
+
+- May occasionally have to restart nodemon from time to time.
