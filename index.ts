@@ -2,7 +2,7 @@ import express from "express";
 import {
   promptResponse,
   promptResponseStream,
-} from "./chat-node-test";
+} from "./openai";
 import { Readable, Transform, finished } from "stream";
 
 const app = express();

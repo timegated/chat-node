@@ -1,6 +1,4 @@
-import { WriteStream } from "fs";
-
-const { Configuration, OpenAIApi } = require("openai");
+import {Configuration, CreateCompletionResponse, OpenAIApi, OpenAIFile} from 'openai';
 require("dotenv").config();
 
 const config = new Configuration({
@@ -29,7 +27,8 @@ export async function promptResponse(promptText: string, promptChoice: number, m
         const completion = await api.createCompletion({
           model: model,
           prompt: `${promptPrepend[promptChoice].prepend} ${promptText}`,
-          max_tokens: 4000
+          max_tokens: 4000,
+          n: 10
         });
         console.log(completion.data.choices);
         return completion.data.choices[0].text;
@@ -66,18 +65,18 @@ export const parseStreamData = (data: Buffer) => {
 }
 
 export async function promptResponseStream(prompt: string, prefixChoice: number, model: string) {
-  console.log(promptPrepend);
   try {
     const res = await api.createCompletion(
       {
         model: model,
         prompt: `${promptPrepend[prefixChoice].prepend} ${prompt}`,
-        max_tokens: 1000,
+        max_tokens: 4000,
         temperature: 0,
         stream: true,
       },
       { responseType: "stream" }
     );
+
     const result = res.data.on("data", (data: Buffer) => parseStreamData(data));
     return result;
   } catch (error: any) {
@@ -94,5 +93,6 @@ export async function promptResponseStream(prompt: string, prefixChoice: number,
     } else {
       console.error("An error occurred during OpenAI request", error);
     }
+    throw error;
   }
 }
