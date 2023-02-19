@@ -24,20 +24,21 @@ const promptPrepend = [
   },
   {
     type: "EXP",
-    explain: "Explain",
+    prepend: "Explain",
   },
 ];
 
 export async function promptResponse(
   promptText: string,
   promptChoice: number,
-  model: string
+  model: string,
+  maxTokens: number
 ) {
   try {
     const completion = await api.createCompletion({
       model: model,
       prompt: `${promptPrepend[promptChoice].prepend} ${promptText}`,
-      max_tokens: 4000,
+      max_tokens: maxTokens,
       n: 10,
     });
     console.log(completion.data.choices);
@@ -55,21 +56,23 @@ export async function promptResponse(
 export async function promptResponseStream(
   prompt: string,
   prefixChoice: number,
-  model: string
+  model: string,
+  maxTokens: number
 ) {
   try {
+    console.log(promptPrepend[prefixChoice].prepend);
     const res = await api.createCompletion(
       {
         model: model,
         prompt: `${promptPrepend[prefixChoice].prepend} ${prompt}`,
-        max_tokens: 4000,
+        max_tokens: maxTokens,
         temperature: 0,
         stream: true,
       },
       { responseType: "stream" }
     );
 
-    const result = res.data.on("data", (data: Buffer) => parseStreamData(extractLines(data)));
+    const result = res.data.on("data", (data: Buffer) => console.log(parseStreamData(extractLines(data))));
     return result;
   } catch (error: any) {
     if (error.response?.status) {

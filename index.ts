@@ -11,16 +11,19 @@ const PORT = 3002;
 
 app.get("/answer", async (req: express.Request, res: express.Response) => {
   try {
-    const { prompt, prefixChoice, modelChoice } = req.query;
-    if (!prompt) {
-      res.status(400).send("Prompt is required for request");
-    }
-    console.log(prompt);
+    const { prompt, prefixChoice, modelChoice, maxTokens } = req.query;
     const promptText = prompt ? String(prompt) : "";
     const prefix = prefixChoice ? Number(prefixChoice) : 0;
     const model = modelChoice ? String(modelChoice) : "text-davinci-002";
-
-    const result = await promptResponse(promptText, prefix, model);
+    const maximumTokens = maxTokens ? Number(maxTokens) : 1000;
+    if (!prompt && !maxTokens) {
+      res.status(400).send("Prompt and maxTokens is required for request");
+      return;
+    }
+    if (promptText.length + maximumTokens > 4096) {
+      res.status(400).send("Max Tokens cannot exceed 4096")
+    }
+    const result = await promptResponse(promptText, prefix, model, maximumTokens);
 
     res.status(200).send(result);
   } catch (error) {
@@ -33,16 +36,19 @@ app.get(
   "/stream",
   async (req: express.Request, res: express.Response, next) => {
     try {
-      const { prompt, prefixChoice, modelChoice } = req.query;
-      console.log(prompt, prefixChoice);
-      if (!prompt) {
+      const { prompt, prefixChoice, modelChoice, maxTokens } = req.query;
+      const promptText = prompt ? String(prompt) : "";
+      const prefix = prefixChoice ? Number(prefixChoice) : 0;
+      const model = modelChoice ? String(modelChoice) : "text-davinci-003";
+      const maximumTokens = maxTokens ? Number(maxTokens) : 1000;
+      if (!prompt && !maxTokens && Number(maxTokens) > 4096) {
         res.status(400).send("Prompt is required for request");
         return;
       }
-      const promptText = prompt ? String(prompt) : "";
-      const prefix = prefixChoice ? Number(prefixChoice) : 0;
-      const model = modelChoice ? String(modelChoice) : "text-davinci-002";
-      const result = await promptResponseStream(promptText, prefix, model);
+      if (promptText.length + maximumTokens > 4096) {
+        res.status(400).send("Max Tokens cannot exceed 4096")
+      }
+      const result = await promptResponseStream(promptText, prefix, model, maximumTokens);
       const stream = streamOn(result);
       stream.pipe(res, { end: false });
       finished(stream, (err) => {
