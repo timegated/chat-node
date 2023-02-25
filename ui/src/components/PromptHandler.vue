@@ -1,6 +1,7 @@
-<template :v-for="{ prompt } of prompts">
-    <span class="prompts" draggable="true">
-        {{ prompt }}
+<template>
+    <h1>{{ name }}</h1>
+    <span v-for="prompt in prompts" class="prompts" draggable="true">
+        {{ prompt.prompt }}
     </span>
 </template>
 
@@ -17,7 +18,7 @@ export default {
             name: 'John',
             prompts: [
                 { prompt: 'Explain SQL' },
-                { prompt: 'Write a SQL query with at least three JOINS' },
+                { prompt: 'Explain INNER JOIN' },
                 { prompt: 'Explain what a Join is' }
             ]
         } as Data;
@@ -41,10 +42,16 @@ export default {
 .prompt-container {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     max-width: 50%;
 }
 
 .prompts {
+    display: flex;
     border: 1px solid hsl(255deg, 255%, 255%);
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
 }
 </style>
