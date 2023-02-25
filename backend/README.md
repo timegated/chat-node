@@ -18,3 +18,7 @@ The goal here is to leverage the fairly new openai-node package so that we can e
 - Run npm start. 
 
 - May occasionally have to restart nodemon from time to time.
+
+### TODO: 
+
+- Implement retries after errors involving rate limit after a delay.
