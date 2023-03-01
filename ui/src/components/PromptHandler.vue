@@ -1,5 +1,6 @@
 <template>
     <h1>{{ name }}</h1>
+    <div>TOPIC: <span>SQL</span></div>
     <span v-for="prompt in prompts" class="prompts" draggable="true">
         {{ prompt.prompt }}
     </span>

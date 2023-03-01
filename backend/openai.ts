@@ -72,7 +72,9 @@ export async function promptResponseStream(
       { responseType: "stream" }
     );
 
-    const result = res.data.on("data", (data: Buffer) => console.log(parseStreamData(extractLines(data))));
+    const result = res.data.on("data", (data: Buffer) =>
+      console.log(parseStreamData(extractLines(data)))
+    );
     return result;
   } catch (error: any) {
     if (error.response?.status) {
@@ -88,6 +90,20 @@ export async function promptResponseStream(
     } else {
       console.error("An error occurred during OpenAI request", error);
     }
+    throw error;
+  }
+}
+
+export async function promptResponseFile(
+  file: any,
+  prefixChoice: number,
+  model: string,
+  maxTokens: number
+) {
+  try {
+    // Implement file upload
+  } catch (error) {
+    // catch errors
     throw error;
   }
 }
