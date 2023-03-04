@@ -4,8 +4,7 @@
             <h3>Response</h3>
             {{ response }}
         </div>
-        <h1>{{ name }}</h1>
-        <section>
+        <section class="topic-container">
             Topics:
             <div class="topics">
                 <button v-for="topicChoice in topicChoices" @click="setCurrentTopic">
@@ -25,11 +24,13 @@
         </div>
         <div class="text-container">
             <div>
+                <h3>Base Prompts</h3>
                 <span v-for="prompt in getCurrentTopicPrompts" @click="pushPrompt" class="text" draggable="true">
                     {{ prompt.prompt }}
                 </span>
             </div>
             <div>
+                <h3>Roles</h3>
                 <span v-for="role in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
                     {{ role.role }}
                 </span>
@@ -41,10 +42,14 @@
 <script lang="ts">
 
 interface Data {
-    name: string;
     topicChoices: string[];
     currentTopic: string;
-    topics: any
+    topics: {
+        [key: string]: {
+            prompts: {prompt: string, rank: number}[];
+            roles: { role: string}[];
+        }
+    };
     response: string;
     prompt: string;
     buildPrompt: string[];
@@ -53,7 +58,6 @@ interface Data {
 export default {
     data() {
         return {
-            name: 'John',
             topicChoices: ['sql', 'http', 'js', 'python', 'go'],
             currentTopic: '',
             topics: {
@@ -126,9 +130,9 @@ export default {
                 go: {
                     prompts: [
                         { prompt: 'Explain GO', rank: 0 },
-                        { prompt: 'Explain tuples in GO', rank: 0 },
-                        { prompt: 'Explain the def keyword in GO', rank: 0 },
-                        { prompt: 'Explain range keyword in GO', rank: 0 },
+                        { prompt: 'Explain multiplexing in GO', rank: 0 },
+                        { prompt: 'Explain concurrency in GO', rank: 0 },
+                        { prompt: 'Explain immediate assignment in GO', rank: 0 },
                     ],
                     roles: [
                         {
@@ -186,7 +190,7 @@ export default {
     },
     methods: {
         async getAnswer() {
-            this.response = await fetch(`http://localhost:3002/answer?prompt=${this.prompt}`, {
+            this.response = await fetch(`http://localhost:3002/stream?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
                 console.log(res);
@@ -271,10 +275,18 @@ export default {
 </script>
 
 <style>
+.topic-container {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+
+}
+
 .topics {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-left: 1rem;
 }
 
 .topics>button {
@@ -298,7 +310,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    border: 1px solid hsl(255deg, 255%, 255%);
+    border: 1px solid var(--main-accent-color-light);
     border-radius: 8px;
     margin-top: 10px;
     padding: 10px;
@@ -314,6 +326,7 @@ fieldset {
     align-items: center;
     height: 75px;
     border-radius: 16px;
+    border-color: var(--main-accent-color-light);
 }
 
 input {
@@ -337,5 +350,12 @@ button {
     border-radius: 16px;
     outline: none;
     border: 1px solid var(--main-accent-color-light);
+}
+
+.response {
+    border: 1px solid var(--main-accent-color-light);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
 }
 </style>

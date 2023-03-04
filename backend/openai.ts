@@ -1,5 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
-require("dotenv").config();
+import {Readable, Transform, finished} from 'stream';
+
+require('dotenv').config()
 
 const config = new Configuration({
   apiKey: process.env.GPT_SECRET,
@@ -59,46 +61,43 @@ export async function promptResponseMultiple(
 
 }
 
-// export async function promptResponseStream(
-//   prompt: string,
-//   prefixChoice: number,
-//   model: string,
-//   maxTokens: number
-// ) {
-//   try {
-//     console.log(promptPrepend[prefixChoice].prepend);
-//     const res = await api.createCompletion(
-//       {
-//         model: model,
-//         prompt: `${promptPrepend[prefixChoice].prepend} ${prompt}`,
-//         max_tokens: maxTokens,
-//         temperature: 0,
-//         stream: true,
-//       },
-//       { responseType: "stream" }
-//     );
+export async function promptResponseStream(
+  prompt: string,
+  model: string,
+  maxTokens: number
+) {
+  try {
+    const res = await api.createCompletion(
+      {
+        model: model,
+        prompt: `${prompt}`,
+        max_tokens: maxTokens,
+        temperature: 0,
+        stream: true,
+      },
+      { responseType: "stream" }
+    );
+    
+    const stream = Readable.from(res.data as any);
 
-//     const result = res.data.on("data", (data: Buffer) =>
-//       console.log(parseStreamData(extractLines(data)))
-//     );
-//     return result;
-//   } catch (error: any) {
-//     if (error.response?.status) {
-//       error.response.data.on("data", (data: Buffer) => {
-//         const message = data.toString();
-//         try {
-//           const parsed = JSON.parse(message);
-//           console.error("An error occurred during OpenAI request: ", parsed);
-//         } catch (error) {
-//           console.error("An error occurred during OpenAI request: ", message);
-//         }
-//       });
-//     } else {
-//       console.error("An error occurred during OpenAI request", error);
-//     }
-//     throw error;
-//   }
-// }
+    return stream;
+  } catch (error: any) {
+    if (error.response?.status) {
+      error.response.data.on("data", (data: Buffer) => {
+        const message = data.toString();
+        try {
+          const parsed = JSON.parse(message);
+          console.error("An error occurred during OpenAI request: ", parsed);
+        } catch (error) {
+          console.error("An error occurred during OpenAI request: ", message);
+        }
+      });
+    } else {
+      console.error("An error occurred during OpenAI request", error);
+    }
+    throw error;
+  }
+}
 
 export async function promptResponseFile(
   file: any,

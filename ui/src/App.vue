@@ -29,7 +29,7 @@ nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100px;
+  width: 10vw;
   font-size: 24px;
   text-align: center;
   height: 100vh;
