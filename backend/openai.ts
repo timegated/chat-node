@@ -1,32 +1,10 @@
 import { Configuration, OpenAIApi } from "openai";
-import { parseStreamData, extractLines } from "./utils";
 require("dotenv").config();
 
 const config = new Configuration({
   apiKey: process.env.GPT_SECRET,
 });
 const api = new OpenAIApi(config);
-
-/**
- * Insert before what a user types if they select this option.
- * This will most likely become a separate piece of the application that only deals with
- * engineering the prompts for more effective answers.
- * Expecting lots of work with strings here with JS is more than equipped to handle
- */
-const promptPrepend = [
-  {
-    type: "WHAT",
-    prepend: "What is a",
-  },
-  {
-    type: "ROLE",
-    prepend: "Assume the role of a",
-  },
-  {
-    type: "EXP",
-    prepend: "Explain",
-  },
-];
 
 export async function promptResponse(
   promptText: string,

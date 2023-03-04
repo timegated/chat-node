@@ -22,14 +22,18 @@ header {
 
 .logo {
   display: block;
-  margin: 0 auto 2rem;
 }
 
 nav {
-  width: 100%;
-  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  font-size: 24px;
   text-align: center;
-  margin-top: 2rem;
+  height: 100vh;
+  background-color: var(--main-color-darkgreen);
 }
 
 nav a.router-link-exact-active {
