@@ -193,7 +193,6 @@ export default {
             this.response = await fetch(`http://localhost:3002/stream?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
-                console.log(res);
                 if (res.body) {
                     const readable = res.body.getReader();
                     return new ReadableStream({
@@ -250,10 +249,7 @@ export default {
             })
                 .then(stream => new Response(stream))
                 .then(response => response.blob())
-                .then(blob => {
-                    console.log(blob.text());
-                    return blob.text();
-                })
+                .then(blob =>  blob.text())
         },
         pushPrompt(e: any) {
             console.log(e.target.value);

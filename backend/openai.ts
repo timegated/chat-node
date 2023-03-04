@@ -99,6 +99,17 @@ export async function promptResponseStream(
   }
 }
 
+export async function listEngines () {
+  try {
+    const res = await api.listModels({
+      responseType: "json",
+    });
+    return res.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function promptResponseFile(
   file: any,
   prefixChoice: number,
