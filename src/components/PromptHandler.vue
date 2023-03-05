@@ -40,6 +40,8 @@
 </template>
 
 <script lang="ts">
+import { BASE_URL_PROD } from '@/utils/urlHandler';
+
 
 interface Data {
     topicChoices: string[];
@@ -190,7 +192,7 @@ export default {
     },
     methods: {
         async getAnswer() {
-            this.response = await fetch(`http://localhost:3002/stream?prompt=${this.prompt}`, {
+            this.response = await fetch(`${BASE_URL_PROD}/stream?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
                 if (res.body) {
@@ -222,7 +224,7 @@ export default {
                 })
         },
         async getMultipleAnswers() {
-            this.response = await fetch(`http://localhost:3002/answer/multiple?prompt=${this.prompt}`, {
+            this.response = await fetch(`${BASE_URL_PROD}/answer/multiple?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
                 console.log(res);

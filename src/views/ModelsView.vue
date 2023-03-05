@@ -8,6 +8,8 @@
 </template>
 
 <script lang="ts">
+import { BASE_URL_PROD } from '@/utils/urlHandler';
+
 
 interface Permission {
   id: string;
@@ -46,7 +48,7 @@ export default {
   methods: {
     async getEngines(): Promise<any> {
       try {
-        const engines = await fetch('http://localhost:3002/engines').then(res => res.json());
+        const engines = await fetch(`${BASE_URL_PROD}/engines`).then(res => res.json());
         console.log(engines);
         this.models = engines;
       } catch (error) {
