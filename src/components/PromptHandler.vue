@@ -7,7 +7,7 @@
         <section class="topic-container">
             Topics:
             <div class="topics">
-                <button v-for="topicChoice in topicChoices" @click="setCurrentTopic">
+                <button :key="topicChoice" v-for="topicChoice in topicChoices" @click="setCurrentTopic">
                     {{ topicChoice }}
                 </button>
             </div>
@@ -25,13 +25,13 @@
         <div class="text-container">
             <div>
                 <h3>Base Prompts</h3>
-                <span v-for="prompt in getCurrentTopicPrompts" @click="pushPrompt" class="text" draggable="true">
+                <span :key="prompt.prompt" v-for="prompt in getCurrentTopicPrompts" @click="pushPrompt" class="text" draggable="true">
                     {{ prompt.prompt }}
                 </span>
             </div>
             <div>
                 <h3>Roles</h3>
-                <span v-for="role in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
+                <span :key="role.role" v-for="role in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
                     {{ role.role }}
                 </span>
             </div>
