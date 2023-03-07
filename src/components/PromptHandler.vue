@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { BASE_URL_PROD } from '@/utils/urlHandler';
+import { BASE_URL_DEV } from '@/utils/urlHandler';
 
 
 interface Data {
@@ -55,10 +55,11 @@ interface Data {
     response: string;
     prompt: string;
     buildPrompt: string[];
+    multiple: any;
 };
 
 export default {
-    data() {
+    data(): Data {
         return {
             topicChoices: ['sql', 'http', 'js', 'python', 'go'],
             currentTopic: '',
@@ -178,7 +179,7 @@ export default {
             multiple: [],
             prompt: '',
             buildPrompt: []
-        } as Data;
+        }
     },
     computed: {
         getCurrentTopicPrompts() {
@@ -192,7 +193,7 @@ export default {
     },
     methods: {
         async getAnswer() {
-            this.response = await fetch(`${BASE_URL_PROD}/stream?prompt=${this.prompt}`, {
+            this.response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
                 if (res.body) {
@@ -224,7 +225,7 @@ export default {
                 })
         },
         async getMultipleAnswers() {
-            this.response = await fetch(`${BASE_URL_PROD}/answer/multiple?prompt=${this.prompt}`, {
+            this.response = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}`, {
                 method: "GET"
             }).then(res => {
                 console.log(res);

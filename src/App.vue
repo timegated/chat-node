@@ -7,7 +7,7 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/models">Models</RouterLink>
-        <RouterLink to="prompts">Prompts</RouterLink>
+        <RouterLink to="/prompts">Prompts</RouterLink>
       </nav>
   </header>
 
