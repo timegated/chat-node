@@ -5,9 +5,9 @@
       <article class="model-cards" :key="model.id" v-for="model in models">
         <aside class="model-basic-info">
           <span class="title">{{ model.id }}</span>
-          <div>created: {{ formatDate(model.created) }}</div>
         </aside>
-        <aside class="permission-info" :key="perm.id" v-for="perm in model.permission">
+        <button @click="toggleMoreInfo">{{ toggleText }}</button>
+        <aside class="permission-info hidden" :key="perm.id" v-for="perm in model.permission">
           <div>permission id:{{ perm.id }}</div>
           <div>permission object: {{ perm.object }}</div>
           <div>created: {{ perm.created }}</div>
@@ -20,6 +20,7 @@
           <div>group: {{ perm.group ?? 'null' }}</div>
           <div>is blocking: {{ perm.is_blocking }}</div>
         </aside>
+        <button>Select Model</button>
       </article>
     </section>
   </section>
@@ -55,19 +56,22 @@ interface Models {
 }
 
 interface Data {
-  models: Models[]
+  models: Models[];
+  toggleInfo: boolean;
+  toggleText: string;
 }
 export default {
   data(): Data {
     return {
-      models: []
+      models: [],
+      toggleInfo: false,
+      toggleText: 'More Info',
     }
   },
   methods: {
     async getEngines(): Promise<any> {
       try {
         const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
-        console.log(engines);
         this.models = engines;
       } catch (error) {
         console.error(error);
@@ -76,11 +80,16 @@ export default {
     },
     formatDate(dateNum: number) {
       return dateNum;
+    },
+    toggleMoreInfo(e: any) {
+      this.toggleInfo = !this.toggleInfo;
+      this.toggleInfo ? e.target.textContent = 'Less Info' : e.target.textContent = 'More Info';
+      this.toggleInfo ? e.target.nextElementSibling.classList.remove('hidden') : e.target.nextElementSibling.classList.add('hidden');
     }
   },
   created() {
     this.getEngines();
-  }
+  },
 };
 </script>
 
@@ -116,5 +125,9 @@ export default {
 .permission-info {
   display: flex;
   flex-direction: column;
+}
+
+.hidden {
+  display: none;
 }
 </style>
