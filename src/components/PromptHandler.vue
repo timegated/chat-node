@@ -1,9 +1,17 @@
 <template>
     <section class="container">
-        <div class="response">
-            <h3>Response</h3>
-            {{ response }}
+      <h1>Using model {{ store.model }}</h1>
+      <section v-if="multiple.length" class="multiple-container">
+        <div :key="m.index" v-for="m in multiple" class="response">
+            <h3>Answer {{ m.index }}</h3>
+            {{ m.text }}
         </div>
+      </section>
+      <section v-else class="response-container">
+        <div class="response">
+          {{ response }}
+        </div>
+      </section>
         <section class="topic-container">
             Topics:
             <div class="topics">
@@ -40,6 +48,7 @@
 </template>
 
 <script lang="ts">
+import {store} from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
 
 
@@ -56,6 +65,7 @@ interface Data {
     prompt: string;
     buildPrompt: string[];
     multiple: any;
+    store: any;
 };
 
 export default {
@@ -178,7 +188,8 @@ export default {
             response: "No Answers Yet",
             multiple: [],
             prompt: '',
-            buildPrompt: []
+            buildPrompt: [],
+            store
         }
     },
     computed: {
@@ -193,7 +204,7 @@ export default {
     },
     methods: {
         async getAnswer() {
-            this.response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}`, {
+            this.response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}&model=${store.model}`, {
                 method: "GET"
             }).then(res => {
                 if (res.body) {
@@ -225,34 +236,11 @@ export default {
                 })
         },
         async getMultipleAnswers() {
-            this.response = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}`, {
+            this.multiple = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}&model=${store.model}`, {
                 method: "GET"
             }).then(res => {
-                console.log(res);
-                if (res.body) {
-                    const readable = res.body.getReader();
-                    return new ReadableStream({
-                        start(controller) {
-                            return pump();
-                            function pump(): any {
-                                return readable.read().then(({ done, value }) => {
-                                    console.log(value);
-                                    if (done) {
-                                        controller.close();
-                                        return;
-                                    }
-                                    controller.enqueue(value);
-                                    return pump();
-                                })
-                            }
-                        }
-                    })
-                }
-                return "No Response";
+                return res.json();
             })
-                .then(stream => new Response(stream))
-                .then(response => response.blob())
-                .then(blob =>  blob.text())
         },
         pushPrompt(e: any) {
             console.log(e.target.value);
@@ -274,6 +262,28 @@ export default {
 </script>
 
 <style>
+.container {
+  height: 100vh;
+  /* max-width: 75vw; */
+  margin: 0 auto;
+  overflow: auto;
+}
+
+.response-container {
+  max-height: 50vh;
+  max-width: 100vw;
+  margin: 1rem 0;
+}
+
+.multiple-container {
+  overflow-y: scroll;
+  max-height: 50vh;
+  max-width: 100vw;
+  margin: 1rem 0;
+  padding-right: 1rem;
+  margin-right: 1rem;
+}
+
 .topic-container {
     display: flex;
     align-items: center;
@@ -303,6 +313,9 @@ export default {
 
 .text-container>div>span:hover {
     cursor: pointer;
+    background-color: var(--main-green-one);
+    transition: background-color 0.25s ease;
+    color: #FFFFFF;
 }
 
 .text {
@@ -326,6 +339,7 @@ fieldset {
     height: 75px;
     border-radius: 16px;
     border-color: var(--main-accent-color-light);
+    margin-right: 1rem;
 }
 
 input {
@@ -340,6 +354,10 @@ input {
     display: flex;
     justify-content: space-between;
     margin: 1.25rem 0;
+}
+
+.btn-container>:first-child {
+  margin-right: 0.75rem;
 }
 
 button {

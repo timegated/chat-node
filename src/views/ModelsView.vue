@@ -2,7 +2,7 @@
   <section class="about">
   <h1>Select A Model</h1>
     <section class="models-container">
-      <article class="model-cards" :key="model.id" v-for="model in models">
+      <article class="model-cards" :key="model.id" v-for="model in textModels">
         <aside class="model-basic-info">
           <span class="title">{{ model.id }}</span>
         </aside>
@@ -20,13 +20,14 @@
           <div>group: {{ perm.group ?? 'null' }}</div>
           <div>is blocking: {{ perm.is_blocking }}</div>
         </aside>
-        <button>Select Model</button>
+        <button @click="store.setModelParam">Select Model</button>
       </article>
     </section>
   </section>
 </template>
 
 <script lang="ts">
+import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
 
 
@@ -57,22 +58,33 @@ interface Models {
 
 interface Data {
   models: Models[];
+  textModels: Models[];
   toggleInfo: boolean;
   toggleText: string;
+  store: any;
 }
+const completionModels: string[] = [
+  'text-davinci-003',
+  'text-davinci-002',
+  'text-davinci-001',
+  'text-ada-001',
+  'text-davinci:001'
+]
 export default {
   data(): Data {
     return {
       models: [],
+      textModels: [],
       toggleInfo: false,
       toggleText: 'More Info',
+      store
     }
   },
   methods: {
     async getEngines(): Promise<any> {
       try {
         const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
-        this.models = engines;
+        this.textModels = engines.filter((item: Models) => completionModels.includes(item.id));
       } catch (error) {
         console.error(error);
         throw error;

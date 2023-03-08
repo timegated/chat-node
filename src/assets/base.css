@@ -1,17 +1,17 @@
 /* semantic color variables for this project */
 :root {
-  --main-color-darkgreen: hsla(125, 86%, 14%, 1);
-  --main-accent-color-light: hsla(125, 66%, 93%, 1);
-  --main-bg-color-one: hsla(0deg, 0%, 32%, 1);
-  --main-green-one: hsla(125deg, 73%, 20%, 1);
-  --secondary-text-color-light: hsla(0, 0%, 97%, 1);
+  --main-color-darkgreen: hsla(230, 49%, 41%, 1);
+  --main-accent-color-light: hsla(227, 42%, 51%, 1);
+  --main-bg-color-one: hsla(210, 16%, 82%, 1);
+  --main-green-one: hsla(232, 51%, 36%, 1);
+  --secondary-text-color-light: hsla(210, 24%, 16%, 1);
   --section-gap: 160px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     background-color: var(--main-bg-color-one);
-    color: var(--secondary-text-color-light);
+    color: #FFFFFF;
   }
 }
 
@@ -36,4 +36,21 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+
+.styled-scrollbars {
+  /* Foreground, Background */
+  scrollbar-color: var(--main-bg-color-one) #333;
+}
+*::-webkit-scrollbar {
+  width: 5px; /* Mostly for vertical scrollbars */
+  height: 5px; /* Mostly for horizontal scrollbars */
+}
+*::-webkit-scrollbar-thumb { /* Foreground */
+  background: #999;
+}
+*::-webkit-scrollbar-track { /* Background */
+  background: #333;
 }
