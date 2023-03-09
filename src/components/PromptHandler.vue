@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import {store} from '../store/store';
+import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
 
 
@@ -213,6 +213,7 @@ export default {
                         start(controller) {
                             return pump();
                             function pump(): any {
+                              console.log('calling pump')
                                 return readable.read().then(({ done, value }) => {
                                     console.log(value);
                                     if (done) {
@@ -241,6 +242,38 @@ export default {
             }).then(res => {
                 return res.json();
             })
+          },
+          async getMultipleStream() {            
+            this.multiple = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}&model=${store.model}`, {
+                method: "GET"
+            }).then(res => {
+                if (res.body) {
+                    const readable = res.body.getReader();
+                    return new ReadableStream({
+                        start(controller) {
+                            return pump();
+                            function pump(): any {
+                                return readable.read().then(({ done, value }) => {
+                                    console.log(value);
+                                    if (done) {
+                                        controller.close();
+                                        return;
+                                    }
+                                    controller.enqueue(value);
+                                    return pump();
+                                })
+                            }
+                        }
+                    })
+                }
+                return "No Response";
+            })
+                .then(stream => new Response(stream))
+                .then(response => response.blob())
+                .then(blob => {
+                    console.log(blob.text());
+                    return blob.text();
+                })
         },
         pushPrompt(e: any) {
             console.log(e.target.value);
@@ -259,6 +292,9 @@ export default {
         }
     }
 }
+// TODO Use composition to break this up
+// TODO text parsing for code and text formatting
+// TODO prompt templating -- set up guard rails
 </script>
 
 <style>
@@ -275,6 +311,9 @@ export default {
   margin: 1rem 0;
 }
 
+.response {
+  height: 45vh;
+}
 .multiple-container {
   overflow-y: scroll;
   max-height: 50vh;
