@@ -264,7 +264,7 @@ export default {
 <style>
 .container {
   height: 100vh;
-  /* max-width: 75vw; */
+  width: 75vw;
   margin: 0 auto;
   overflow: auto;
 }

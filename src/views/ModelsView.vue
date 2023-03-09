@@ -1,6 +1,8 @@
 <template>
   <section class="about">
   <h1>Select A Model</h1>
+  <button class="get-all" @click="getEngines">Get Text Engines</button>
+  <button class="get-all" @click="getAllEngines">Get All Engines</button>
     <section class="models-container">
       <article class="model-cards" :key="model.id" v-for="model in textModels">
         <aside class="model-basic-info">
@@ -85,6 +87,15 @@ export default {
       try {
         const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
         this.textModels = engines.filter((item: Models) => completionModels.includes(item.id));
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    async getAllEngines(): Promise<any> {
+      try {
+        const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
+        this.textModels = engines;
       } catch (error) {
         console.error(error);
         throw error;
