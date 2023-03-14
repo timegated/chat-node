@@ -9,7 +9,7 @@
       </section>
       <section v-else class="response-container">
         <div class="response">
-          {{ response }}
+          {{ streamedResponse }}
         </div>
       </section>
         <section class="topic-container">
@@ -29,6 +29,7 @@
         <div class="btn-container">
             <button @click="getAnswer">Answer</button>
             <button @click="getMultipleAnswers">Multiple Answers</button>
+            <button @click="streamResponse">Stream</button>
         </div>
         <div class="text-container">
             <div>
@@ -61,7 +62,8 @@ interface Data {
             roles: { role: string}[];
         }
     };
-    response: string;
+    response: ReadableStream;
+    streamedResponse: string;
     prompt: string;
     buildPrompt: string[];
     multiple: any;
@@ -185,7 +187,8 @@ export default {
                     ],
                 },
             },
-            response: "No Answers Yet",
+            response: new ReadableStream(),
+            streamedResponse: "",
             multiple: [],
             prompt: '',
             buildPrompt: [],
@@ -205,7 +208,10 @@ export default {
     methods: {
         async getAnswer() {
             this.response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}&model=${store.model}`, {
-                method: "GET"
+                method: "GET",
+                headers: {
+                  'response-type': 'text/stream'
+                }
             }).then(res => {
                 if (res.body) {
                     const readable = res.body.getReader();
@@ -213,9 +219,7 @@ export default {
                         start(controller) {
                             return pump();
                             function pump(): any {
-                              console.log('calling pump')
                                 return readable.read().then(({ done, value }) => {
-                                    console.log(value);
                                     if (done) {
                                         controller.close();
                                         return;
@@ -227,14 +231,8 @@ export default {
                         }
                     })
                 }
-                return "No Response";
             })
-                .then(stream => new Response(stream))
-                .then(response => response.blob())
-                .then(blob => {
-                    console.log(blob.text());
-                    return blob.text();
-                })
+            .then((stream) => new Response(stream).text()) as ReadableStream
         },
         async getMultipleAnswers() {
             this.multiple = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}&model=${store.model}`, {
@@ -243,37 +241,29 @@ export default {
                 return res.json();
             })
           },
-          async getMultipleStream() {            
-            this.multiple = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}&model=${store.model}`, {
-                method: "GET"
-            }).then(res => {
-                if (res.body) {
-                    const readable = res.body.getReader();
-                    return new ReadableStream({
-                        start(controller) {
-                            return pump();
-                            function pump(): any {
-                                return readable.read().then(({ done, value }) => {
-                                    console.log(value);
-                                    if (done) {
-                                        controller.close();
-                                        return;
-                                    }
-                                    controller.enqueue(value);
-                                    return pump();
-                                })
-                            }
-                        }
-                    })
-                }
-                return "No Response";
+        async streamResponse() {
+          try {
+            const response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}&model=${store.model}`, {
+              method: 'GET',
+              headers: {
+                'response-type': 'text/stream'
+              }
             })
-                .then(stream => new Response(stream))
-                .then(response => response.blob())
-                .then(blob => {
-                    console.log(blob.text());
-                    return blob.text();
-                })
+            let processing = true;
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder('utf-8');
+              while(processing) {
+                const read: any = await reader?.read();
+                if (read.done) {
+                  break;
+                }
+                const chunk = decoder.decode(read.value, {stream: true});
+
+                this.streamedResponse += chunk;
+              }
+          } catch (error: any) {
+            throw new Error(error);
+          }
         },
         pushPrompt(e: any) {
             console.log(e.target.value);
