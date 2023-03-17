@@ -1,7 +1,7 @@
 <template>
   <section class="about">
   <h1>Select A Model</h1>
-  <button class="get-all" @click="getEngines">Get Text Engines</button>
+  <button class="get-all" @click="getTextEngines">Get Text Engines</button>
   <button class="get-all" @click="getAllEngines">Get All Engines</button>
     <section class="models-container">
       <article class="model-cards" :key="model.id" v-for="model in textModels">
@@ -31,7 +31,7 @@
 <script lang="ts">
 import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
-
+import axios from 'axios';
 
 interface Permission {
   id: string;
@@ -83,19 +83,21 @@ export default {
     }
   },
   methods: {
-    async getEngines(): Promise<any> {
+    async getTextEngines(): Promise<void> {
       try {
-        const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
-        this.textModels = engines.filter((item: Models) => completionModels.includes(item.id));
+        const engines = await axios.get(`${BASE_URL_DEV}/engines`);
+        if (engines) {
+          this.textModels = engines.data.filter((item: Models) => completionModels.includes(item.id));
+        }
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    async getAllEngines(): Promise<any> {
+    async getAllEngines(): Promise<void> {
       try {
-        const engines = await fetch(`${BASE_URL_DEV}/engines`).then(res => res.json());
-        this.textModels = engines;
+        const engines = await axios.get(`${BASE_URL_DEV}/engines`);
+        this.textModels = engines.data;
       } catch (error) {
         console.error(error);
         throw error;
@@ -111,7 +113,7 @@ export default {
     }
   },
   created() {
-    this.getEngines();
+    this.getTextEngines();
   },
 };
 </script>

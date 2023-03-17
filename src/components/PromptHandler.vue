@@ -398,22 +398,4 @@ input {
   border-radius: 8px;
   border: none;
 }
-
-.btn-container {
-  display: flex;
-  justify-content: space-between;
-}
-
-button {
-  background-color: var(--main-bg-color-one);
-  color: var(--main-accent-color-light);
-  padding: 0.75rem;
-  border-radius: 16px;
-  outline: none;
-  border: 1px solid var(--main-accent-color-light);
-}
-
-button.cta {
-  width: 100%;
-}
 </style>

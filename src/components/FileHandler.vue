@@ -22,7 +22,6 @@ export default {
       const formData = new FormData();
       formData.append('file', this.file);
       
-      console.log(formData)
       try {
         // Replace this URL with the third-party API URL
         const apiUrl = `${BASE_URL_DEV}/files/upload`;
