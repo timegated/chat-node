@@ -26,6 +26,7 @@ header {
 }
 
 nav {
+  position: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;

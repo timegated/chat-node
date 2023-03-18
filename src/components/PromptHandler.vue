@@ -1,11 +1,5 @@
 <template>
   <section class="container">
-    <!-- <section v-if="multiple.length" class="multiple-container">
-        <div :key="m.index" v-for="m in multiple" class="response">
-          <h3>Answer {{ m.index }}</h3>
-          {{ m.text }}
-        </div>
-      </section> -->
     <section class="topic-container">
       <div class="topics">
         <span class="topic-title">Topics:</span>
@@ -39,10 +33,7 @@
         </section>
       </div>
       <div class="fieldset-container">
-        <fieldset>
-          <legend>Prompt</legend>
-          <input class="prompt-input" v-model.trim="prompt" style="width: 100%" />
-        </fieldset>
+        <GrowingFieldset :value="prompt" @update="prompt = $event"></GrowingFieldset>
       </div>
       <div class="btn-container">
         <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
@@ -55,7 +46,7 @@
 <script lang="ts">
 import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
-
+import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 
 interface Data {
   topicChoices: string[];
@@ -70,12 +61,14 @@ interface Data {
   responses: any[];
   index: number;
   prompt: string;
-  buildPrompt: string[];
   multiple: any;
   store: any;
 };
 
 export default {
+  components: {
+    GrowingFieldset
+  },
   data(): Data {
     return {
       topicChoices: ['sql', 'http', 'js', 'python', 'go'],
@@ -196,8 +189,7 @@ export default {
       index: 0,
       response: "",
       multiple: [],
-      prompt: '',
-      buildPrompt: [],
+      prompt: ' ',
       store
     }
   },
@@ -254,15 +246,14 @@ export default {
       }
     },
     pushPrompt(e: any) {
-      this.prompt = e.target.textContent
+      this.prompt = e.target.textContent;
     },
     pushRole(e: any) {
       console.log(e);
       if (this.prompt !== "") {
         // Roles always prepended
-        this.prompt = "";
       }
-      this.prompt = `${e.target.textContent} ${this.prompt}`;
+      this.prompt = `${e.target.textContent}`;
     },
     setCurrentTopic(e: any) {
       this.currentTopic = e.target.textContent;
@@ -281,14 +272,6 @@ export default {
   display: grid;
   grid-template-columns: 1fr 2fr;
   grid-gap: 10px;
-}
-
-@media screen and (max-width: 1600px) {
-  .container {
-    display: flex;
-    flex-direction: column;
-  }
-
 }
 
 .topic-container {
@@ -311,6 +294,7 @@ export default {
 .responses {
   height: 30vw;
   max-width: 75vw;
+  margin: auto;
   overflow: auto;
   border: 1px solid var(--main-accent-color-light);
   border-radius: 8px;
@@ -397,5 +381,14 @@ input {
   padding: 0.25rem;
   border-radius: 8px;
   border: none;
+}
+
+@media screen and (max-width: 1600px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
 }
 </style>

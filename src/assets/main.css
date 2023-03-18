@@ -4,6 +4,8 @@
   display: grid;
   grid-template-columns: 1fr 6fr;
   font-weight: normal;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 a {

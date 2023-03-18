@@ -42,15 +42,18 @@ body {
 
 .styled-scrollbars {
   /* Foreground, Background */
-  scrollbar-color: var(--main-bg-color-one) #333;
+  scrollbar-color: var(--main-color-darkgreen) #333;
 }
 *::-webkit-scrollbar {
   width: 5px; /* Mostly for vertical scrollbars */
   height: 5px; /* Mostly for horizontal scrollbars */
+  border-radius: 16px;
 }
 *::-webkit-scrollbar-thumb { /* Foreground */
-  background: #999;
+  background: var(--main-accent-color-light);
+  border-radius: 8px;
 }
 *::-webkit-scrollbar-track { /* Background */
-  background: #333;
+  background: var(--main-green-one);
+  border-radius: 16px;
 }
