@@ -3,41 +3,39 @@
     <section class="topic-container">
       <div class="topics">
         <span class="topic-title">Topics:</span>
-        <button :key="topicChoice" v-for="topicChoice in topicChoices" @click="setCurrentTopic">
+        <button :key="topicChoice" :class="{'isActive': topicChoice === currentTopic}" v-for="topicChoice in topicChoices" @click="pushTopic">
           {{ topicChoice }}
         </button>
       </div>
       <div class="text-container">
         <div>
-          <h3>Base Prompts</h3>
-          <span :key="prompt.prompt" v-for="prompt in getCurrentTopicPrompts" @click="pushPrompt" class="text"
-            draggable="true">
-            {{ prompt.prompt }}
+          <span class="prompt-titles">Base Prompts</span>
+          <span :key="p.prompt" :class="{'isActive': p.prompt === prompt}" v-for="p in getCurrentTopicPrompts" @click="pushPrompt" class="text">
+            {{ p.prompt }}
           </span>
         </div>
         <div>
-          <h3>Roles</h3>
-          <span :key="role.role" v-for="role in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
-            {{ role.role }}
+          <span class="prompt-titles">Roles</span>
+          <span :key="r.role" :class="{'isActive': r.role === role}" v-for="r in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
+            {{ r.role }}
           </span>
         </div>
       </div>
     </section>
     <section class="response-container">
       <div class="responses">
-        <section :key="response" v-for="response in responses">
+        <section :key="response.text" v-for="response in responses">
           <span class="model">Using model {{ store.model }}. With Prompt: {{ response.prompt }}</span>
           <div class="response">
             {{ response.text.replace('undefined', '') }}
           </div>
         </section>
       </div>
-      <div class="fieldset-container">
-        <GrowingFieldset :value="prompt" @update="prompt = $event"></GrowingFieldset>
-      </div>
+        <GrowingFieldset :prompt="prompt" :value="compiledPrompt" @update:value="compiledPrompt = $event"
+          @update:prompt="prompt = $event"></GrowingFieldset>
       <div class="btn-container">
         <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
-        <button class="cta" @click="streamResponse">Get Answer</button>
+        <button class="cta" @click="streamChatResponse">Get Answer</button>
       </div>
     </section>
   </section>
@@ -47,22 +45,25 @@
 import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
+import { buildSentence } from '../utils/promptBuilder/promptBuilder';
+
+interface Responses {
+  text: string,
+  prompt: string,
+}
 
 interface Data {
   topicChoices: string[];
   currentTopic: string;
-  topics: {
-    [key: string]: {
-      prompts: { prompt: string, rank: number }[];
-      roles: { role: string }[];
-    }
-  };
-  response: string;
-  responses: any[];
-  index: number;
   prompt: string;
+  compiledPrompt: string;
+  role: string;
+  response: string;
+  responses: Responses[];
+  index: number;
   multiple: any;
   store: any;
+  activeTopic: boolean;
 };
 
 export default {
@@ -73,150 +74,34 @@ export default {
     return {
       topicChoices: ['sql', 'http', 'js', 'python', 'go'],
       currentTopic: '',
-      topics: {
-        sql: {
-          prompts: [
-            { prompt: 'Explain SQL', rank: 0 },
-            { prompt: 'Explain INNER JOIN', rank: 0 },
-            { prompt: 'Explain what a Join is', rank: 0 },
-            { prompt: 'Explain what different versions of SQL exist', rank: 0 },
-          ],
-          roles: [
-            {
-              role: 'Assume the role of a database administrator'
-            },
-            {
-              role: 'Take on the role of a SQL expert'
-            },
-            {
-              role: 'You are a very knowledgeable user of SQL'
-            },
-            {
-              role: 'You are an amazing SQL developer'
-            }
-          ],
-        },
-        js: {
-          prompts: [
-            { prompt: 'Explain Javascript', rank: 0 },
-            { prompt: 'Explain optional chaining in Javascript', rank: 0 },
-            { prompt: 'Explain first class functions in JS', rank: 0 },
-            { prompt: 'Explain prototypal inheritance', rank: 0 },
-          ],
-          roles: [
-            {
-              role: 'Assume the role of an experienced JS developer'
-            },
-            {
-              role: 'Take on the role of a Javascript developer'
-            },
-            {
-              role: 'You are very knowledgeable about Javascript'
-            },
-            {
-              role: 'You are a very highly paid Javascript developer'
-            }
-          ],
-        },
-        python: {
-          prompts: [
-            { prompt: 'Explain Python', rank: 0 },
-            { prompt: 'Explain tuples in Python', rank: 0 },
-            { prompt: 'Explain the def keyword in Python', rank: 0 },
-            { prompt: 'Explain range keyword in Python', rank: 0 },
-          ],
-          roles: [
-            {
-              role: 'Assume the role of an experienced Python developer'
-            },
-            {
-              role: 'Take on the role of a Python developer'
-            },
-            {
-              role: 'You are very knowledgeable about Python'
-            },
-            {
-              role: 'You are a very highly paid Python developer'
-            }
-          ],
-        },
-        go: {
-          prompts: [
-            { prompt: 'Explain GO', rank: 0 },
-            { prompt: 'Explain multiplexing in GO', rank: 0 },
-            { prompt: 'Explain concurrency in GO', rank: 0 },
-            { prompt: 'Explain immediate assignment in GO', rank: 0 },
-          ],
-          roles: [
-            {
-              role: 'Assume the role of an experienced GO developer'
-            },
-            {
-              role: 'Take on the role of a GO developer'
-            },
-            {
-              role: 'You are very knowledgeable about GO'
-            },
-            {
-              role: 'You are a very highly paid GO developer'
-            }
-          ],
-        },
-        http: {
-          prompts: [
-            { prompt: 'Explain HTTP', rank: 0 },
-            { prompt: 'Explain request methods in HTTP', rank: 0 },
-            { prompt: 'Explain error codes in HTTP', rank: 0 },
-            { prompt: 'Explain status codes in HTTP', rank: 0 },
-          ],
-          roles: [
-            {
-              role: 'Assume the role of a developer who knows HTTP'
-            },
-            {
-              role: 'You have expert knowledge of the HTTP protocol'
-            },
-            {
-              role: 'You are very knowledgeable about HTTP'
-            },
-            {
-              role: 'You know the difference between HTTP and HTTPS'
-            }
-          ],
-        },
-      },
-      responses: [{text: "", prompt: ""}],
+      prompt: '',
+      compiledPrompt: '',
+      role: '',
+      activeTopic: false,
+      responses: [{ text: "", prompt: "" }],
       index: 0,
       response: "",
       multiple: [],
-      prompt: ' ',
       store
     }
   },
   computed: {
     getCurrentTopicPrompts() {
       const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic;
-      return this.topics[currentTopic].prompts
+      return store.topics[currentTopic].prompts
     },
     getCurrentRolePrompts() {
       const currentTopic = this.currentTopic === "" ? 'sql' : this.currentTopic;
-      return this.topics[currentTopic].roles;
+      return store.topics[currentTopic].roles;
     }
   },
   methods: {
-    async getMultipleAnswers() {
-      this.multiple = await fetch(`${BASE_URL_DEV}/answer/multiple?prompt=${this.prompt}&model=${store.model}`, {
-        method: "GET"
-      }).then(res => {
-        return res.json();
-      })
-    },
     incResponseIndex() {
       this.index++;
     },
     async streamResponse() {
       try {
-        const response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.prompt}&model=${store.model}`, {
+        const response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
           method: 'GET',
           headers: {
             'response-type': 'text/stream'
@@ -245,18 +130,77 @@ export default {
         throw new Error(error);
       }
     },
+    async streamChatResponse() {
+      try {
+        const response = await fetch(`${BASE_URL_DEV}/stream/chat?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
+          method: 'GET',
+          headers: {
+            'response-type': 'text/stream'
+          }
+        });
+        let processing = true;
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder('utf-8');
+        while (processing) {
+          const read: any = await reader?.read();
+          if (read.done) {
+            processing = false;
+            break;
+          }
+          const chunk = decoder.decode(read.value, { stream: true });
+          this.responses[this.index].text += chunk ? chunk : "";
+          this.responses[this.index].prompt = this.compiledPrompt === '' ? this.prompt : this.compiledPrompt;
+        }
+        this.incResponseIndex();
+        this.responses.push({
+          text: "",
+          prompt: ""
+        });
+      } catch (error: any) {
+        throw new Error(error);
+      }
+    },
     pushPrompt(e: any) {
       this.prompt = e.target.textContent;
     },
     pushRole(e: any) {
-      console.log(e);
-      if (this.prompt !== "") {
-        // Roles always prepended
-      }
-      this.prompt = `${e.target.textContent}`;
+      this.role = e.target.textContent;
     },
-    setCurrentTopic(e: any) {
+    pushTopic(e: any) {
       this.currentTopic = e.target.textContent;
+      this.prompt = '';
+      this.role = '';
+    },
+    buildPrompt() {
+      this.compiledPrompt = buildSentence(this.currentTopic, this.prompt, this.role);
+    },
+    checkValues() {
+      const currentPrompt = this.prompt !== '';
+      const currentRole = this.role !== '';
+      const currentTopic = this.currentTopic !== '';
+      if (currentPrompt && currentRole && currentTopic) {
+        this.buildPrompt();
+      }
+    }
+  },
+  watch: {
+    prompt: {
+      immediate: true,
+      handler() {
+        this.checkValues();
+      }
+    },
+    role: {
+      immediate: true,
+      handler() {
+        this.checkValues();
+      }
+    },
+    currentTopic: {
+      immediate: true,
+      handler() {
+        this.checkValues();
+      }
     }
   }
 }
@@ -277,9 +221,10 @@ export default {
 .topic-container {
   display: flex;
   align-items: center;
+  justify-content: start;
   font-weight: bold;
   flex-direction: column;
-  justify-content: center;
+  margin-top: 0.50rem;
 }
 
 .container>.model {
@@ -292,8 +237,8 @@ export default {
 }
 
 .responses {
-  height: 30vw;
-  max-width: 75vw;
+  height: 35vw;
+  max-width: 50vw;
   margin: auto;
   overflow: auto;
   border: 1px solid var(--main-accent-color-light);
@@ -301,12 +246,12 @@ export default {
   padding: 0.75rem;
 }
 
-.response > section {
-  max-width: 75vw;
+.responses > section {
+  margin: 0.75rem 0;
 }
+
 .response {
   margin-right: 0.75rem;
-  height: 20vh;
 }
 
 .multiple-container {
@@ -363,24 +308,19 @@ export default {
   height: 36px;
 }
 
-.fieldset-container {
-  margin: 1.25rem 0;
+.isActive {
+  background-color: var(--main-green-one);
+  color: #FFFFFF;
 }
 
-fieldset {
-  display: flex;
-  align-items: center;
-  height: 75px;
-  border-radius: 16px;
-  border-color: var(--main-accent-color-light);
-  margin-right: 1rem;
+button.cta {
+  width: 50vw;
+  margin: auto;
 }
 
-input {
+.prompt-titles {
+  font-weight: bold;
   font-size: 18px;
-  padding: 0.25rem;
-  border-radius: 8px;
-  border: none;
 }
 
 @media screen and (max-width: 1600px) {

@@ -42,7 +42,8 @@ body {
 
 .styled-scrollbars {
   /* Foreground, Background */
-  scrollbar-color: var(--main-color-darkgreen) #333;
+  scrollbar-color: var(--main-color-darkgreen);
+  border-radius: 8px;
 }
 *::-webkit-scrollbar {
   width: 5px; /* Mostly for vertical scrollbars */
@@ -54,6 +55,6 @@ body {
   border-radius: 8px;
 }
 *::-webkit-scrollbar-track { /* Background */
-  background: var(--main-green-one);
   border-radius: 16px;
+
 }

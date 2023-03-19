@@ -65,6 +65,7 @@ interface Data {
   toggleText: string;
   store: any;
 }
+
 const completionModels: string[] = [
   'text-davinci-003',
   'text-davinci-002',

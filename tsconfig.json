@@ -12,7 +12,7 @@
     }
   ],
   "compilerOptions": {
-    "isolatedModules": true,
-    "preserveValueImports": true
+    "isolatedModules": false,
+    "preserveValueImports": false
   }
 }

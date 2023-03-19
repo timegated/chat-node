@@ -32,11 +32,14 @@ button {
   border: 1px solid var(--main-accent-color-light);
 }
 
-button.cta {
-  width: 100%;
+button:hover {
+  cursor: pointer;
+  background-color: var(--main-green-one);
+  color: #FFFFFF;
+  transition: background-color 0.25s ease;
 }
 
-button:hover {
+button:visited {
   cursor: pointer;
   background-color: var(--main-green-one);
   transition: background-color 0.25s ease;

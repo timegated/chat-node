@@ -1,8 +1,10 @@
 <template>
-  <fieldset :style="{ height: fieldsetHeight }">
-    <legend>Prompt</legend>
-    <textarea :value="value" @input="onInput" ref="textarea"></textarea>
-  </fieldset>
+  <div class="fieldset-container">
+    <fieldset :style="{ height: fieldsetHeight }">
+      <legend>Prompt</legend>
+      <textarea :prompt="prompt" :value="value" @input="onInputValue" ref="textarea"></textarea>
+    </fieldset>
+  </div>
 </template>
 
 <script lang="ts">
@@ -12,9 +14,9 @@ export default defineComponent({
   name: 'GrowingFieldset',
   props: {
     value: String,
-    promptValue: String
+    prompt: String
   },
-  emits: ['update:value'],
+  emits: ['update:value', 'update:prompt'],
   setup(props, { emit }) {
     const text = ref(props.value || '');
     const fieldsetHeight = ref('auto');
@@ -25,9 +27,12 @@ export default defineComponent({
 
     const textareaRef = ref<any>(null);
 
-    const onInput = (event: any): void => {
+    const onInputValue = (event: any): void => {
       const target = event.target as HTMLTextAreaElement;
       text.value = target.value;
+      if (!props.value) {
+        emit('update:prompt', text.value)
+      }
       emit('update:value', text.value);
     }
 
@@ -38,18 +43,33 @@ export default defineComponent({
       }
     });
 
-    return { text, fieldsetHeight, onInput, textareaRef };
+    return { text, fieldsetHeight, onInputValue, textareaRef };
   }
 });
 </script>
 
 <style>
-  textarea {
-    width: 100%;
-    border: 1px solid #ccc;
-    padding: 5px;
-    font-size: 16px;
-    line-height: 1.4;
-    font-family: inherit;
-  }
+.fieldset-container {
+  margin: 1.25rem 0;
+}
+
+fieldset {
+  display: flex;
+  align-items: center;
+  border-radius: 16px;
+  border-color: var(--main-accent-color-light);
+  margin: auto;
+  max-width: 50vw;
+  resize: none;
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 5px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-family: inherit;
+  border-radius: 8px
+}
 </style>
