@@ -16,10 +16,10 @@ export const topics: PromptText = {
         role: 'Take on the role of a SQL expert'
       },
       {
-        role: 'You are a very knowledgeable user of SQL'
+        role: 'As a SQL expert with many years of experience using MSSQL'
       },
       {
-        role: 'You are an amazing SQL developer'
+        role: 'As an above average SQL developer with unusual amounts of knowledge'
       }
     ],
   },
