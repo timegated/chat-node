@@ -283,10 +283,6 @@ export default {
 }
 
 .text-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 0.25rem;
-  align-items: center;
   white-space: nowrap;
 }
 
