@@ -198,9 +198,6 @@ export default {
     }
   }
 }
-// TODO Use composition to break this up
-// TODO text parsing for code and text formatting
-// TODO prompt templating -- set up guard rails
 </script>
 
 <style>
