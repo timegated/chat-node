@@ -3,20 +3,38 @@
     <section class="topic-container">
       <div class="topics">
         <span class="topic-title">Topics:</span>
-        <button :key="topicChoice" :class="{'isActive': topicChoice === currentTopic}" v-for="topicChoice in topicChoices" @click="pushTopic">
+        <button
+          :key="topicChoice"
+          :class="{ isActive: topicChoice === currentTopic }"
+          v-for="topicChoice in topicChoices"
+          @click="pushTopic"
+        >
           {{ topicChoice }}
         </button>
       </div>
       <div class="text-container">
         <div>
           <span class="prompt-titles">Base Prompts</span>
-          <span :key="p.prompt" :class="{'isActive': p.prompt === prompt}" v-for="p in getCurrentTopicPrompts" @click="pushPrompt" class="text">
+          <span
+            :key="p.prompt"
+            :class="{ isActive: p.prompt === prompt }"
+            v-for="p in getCurrentTopicPrompts"
+            @click="pushPrompt"
+            class="text"
+          >
             {{ p.prompt }}
           </span>
         </div>
         <div>
           <span class="prompt-titles">Roles</span>
-          <span :key="r.role" :class="{'isActive': r.role === role}" v-for="r in getCurrentRolePrompts" class="text" @click="pushRole" draggable="true">
+          <span
+            :key="r.role"
+            :class="{ isActive: r.role === role }"
+            v-for="r in getCurrentRolePrompts"
+            class="text"
+            @click="pushRole"
+            draggable="true"
+          >
             {{ r.role }}
           </span>
         </div>
@@ -26,54 +44,58 @@
       <div class="responses">
         <section :key="parsed.text" v-for="parsed in parseMarkdown">
           <span class="model">Using model {{ store.model }}. With Prompt: {{ parsed.prompt }}</span>
-          <div v-html="parsed.text" class="response">
-          </div>
+          <div v-html="parsed.text" class="response"></div>
         </section>
       </div>
-        <GrowingFieldset :prompt="prompt" :value="compiledPrompt" @update:value="compiledPrompt = $event"
-          @update:prompt="prompt = $event"></GrowingFieldset>
+      <GrowingFieldset
+        :prompt="prompt"
+        :value="parseCompiledPrompt"
+        @update:value="compiledPrompt = $event"
+        @update:prompt="prompt = $event"
+      ></GrowingFieldset>
       <div class="btn-container">
         <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
         <button class="cta" @click="streamChatResponse">Get Answer</button>
-        <button class="cta" @click="streamResponse">Stream</button>
       </div>
     </section>
   </section>
 </template>
 
 <script lang="ts">
-import { store } from '../store/store';
-import { BASE_URL_DEV } from '@/utils/urlHandler';
+import { store } from '../store/store'
+import { BASE_URL_DEV } from '@/utils/urlHandler'
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
-import { buildSentence } from '../utils/promptBuilder/promptBuilder';
-import { marked } from 'marked';
-import {highlightAuto} from 'highlightjs';
-import axios from 'axios';
+import { buildSentence } from '../utils/promptBuilder/promptBuilder'
+import DOMPurify from 'dompurify'
+import { marked } from 'marked'
+import hljs from 'highlightjs'
 
+const renderer = new marked.Renderer()
 marked.setOptions({
-  highlight: function(code) {
-    return highlightAuto(code).value;
-  }
-});
+  highlight: function (code) {
+    return hljs.highlightAuto(code).value
+  },
+  async: true
+})
 
 interface Responses {
-  text: string,
-  prompt: string,
+  text: string
+  prompt: string
 }
 
 interface Data {
-  topicChoices: string[];
-  currentTopic: string;
-  prompt: string;
-  compiledPrompt: string;
-  role: string;
-  response: string;
-  responses: Responses[];
-  index: number;
-  multiple: any;
-  store: any;
-  activeTopic: boolean;
-};
+  topicChoices: string[]
+  currentTopic: string
+  prompt: string
+  compiledPrompt: string
+  role: string
+  response: string
+  responses: Responses[]
+  index: number
+  multiple: any
+  store: any
+  activeTopic: boolean
+}
 
 export default {
   components: {
@@ -87,93 +109,101 @@ export default {
       compiledPrompt: '',
       role: '',
       activeTopic: false,
-      responses: [{ text: "", prompt: "" }],
+      responses: [{ text: '', prompt: '' }],
       index: 0,
-      response: "",
+      response: '',
       multiple: [],
       store
     }
   },
   computed: {
     getCurrentTopicPrompts() {
-      const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic;
+      const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
       return store.topics[currentTopic].prompts
     },
     getCurrentRolePrompts() {
-      const currentTopic = this.currentTopic === "" ? 'sql' : this.currentTopic;
-      return store.topics[currentTopic].roles;
+      const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
+      return store.topics[currentTopic].roles
     },
-    parseMarkdown () {
-        return this.responses.map((response) => {
-          return {
-            ...response,
-            text: marked(response.text)
-          }
-        });
+    parseMarkdown() {
+      return this.responses.map((response) => {
+        return {
+          ...response,
+          text: DOMPurify.sanitize(marked(response.text, { renderer }))
+        }
+      })
+    },
+    parseCompiledPrompt() {
+      let words = this.compiledPrompt.split(' ')
+      return words.map((word, index) => {
+        if (index === 0) {
+          return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
+        }
+        return word.toLowerCase();
+      }).join(' ')
     }
   },
   methods: {
     incResponseIndex() {
-      this.index++;
-    },
-    async streamResponse() {
-        const response = await axios.get(`${BASE_URL_DEV}/stream/chat?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
-          responseType: 'stream',
-        })
-
-        console.log(response);
+      this.index++
     },
     async streamChatResponse() {
       try {
-        const response = await fetch(`${BASE_URL_DEV}/stream/chat?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
-          method: 'GET',
-          headers: {
-            'response-type': 'text/stream'
+        const response = await fetch(
+          `${BASE_URL_DEV}/stream/chat?prompt=${
+            this.compiledPrompt === '' ? this.prompt : this.compiledPrompt
+          }&model=${store.model}`,
+          {
+            method: 'GET',
+            headers: {
+              'response-type': 'text/stream'
+            }
           }
-        });
-        let processing = true;
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder('utf-8');
+        )
+        let processing = true
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder('utf-8')
         while (processing) {
-          const read: any = await reader?.read();
+          const read: any = await reader?.read()
           if (read.done) {
-            processing = false;
-            break;
+            processing = false
+            break
           }
-          const chunk = decoder.decode(read.value, { stream: true });
+          const chunk = decoder.decode(read.value, { stream: true })
 
-          this.responses[this.index].text += chunk;
-          this.responses[this.index].prompt = this.compiledPrompt === '' ? this.prompt : this.compiledPrompt;
+          this.responses[this.index].text += chunk
+          this.responses[this.index].prompt =
+            this.compiledPrompt === '' ? this.prompt : this.compiledPrompt
         }
-        this.incResponseIndex();
+        this.incResponseIndex()
         this.responses.push({
-          text: "",
-          prompt: ""
-        });
+          text: '',
+          prompt: ''
+        })
       } catch (error: any) {
-        throw new Error(error);
+        throw new Error(error)
       }
     },
     pushPrompt(e: any) {
-      this.prompt = e.target.textContent;
+      this.prompt = e.target.textContent
     },
     pushRole(e: any) {
-      this.role = e.target.textContent;
+      this.role = e.target.textContent
     },
     pushTopic(e: any) {
-      this.currentTopic = e.target.textContent;
-      this.prompt = '';
-      this.role = '';
+      this.currentTopic = e.target.textContent
+      this.prompt = ''
+      this.role = ''
     },
     buildPrompt() {
-      this.compiledPrompt = buildSentence(this.currentTopic, this.prompt, this.role);
+      this.compiledPrompt = buildSentence(this.currentTopic, this.prompt, this.role)
     },
     checkValues() {
-      const currentPrompt = this.prompt !== '';
-      const currentRole = this.role !== '';
-      const currentTopic = this.currentTopic !== '';
+      const currentPrompt = this.prompt !== ''
+      const currentRole = this.role !== ''
+      const currentTopic = this.currentTopic !== ''
       if (currentPrompt && currentRole && currentTopic) {
-        this.buildPrompt();
+        this.buildPrompt()
       }
     }
   },
@@ -181,19 +211,19 @@ export default {
     prompt: {
       immediate: true,
       handler() {
-        this.checkValues();
+        this.checkValues()
       }
     },
     role: {
       immediate: true,
       handler() {
-        this.checkValues();
+        this.checkValues()
       }
     },
     currentTopic: {
       immediate: true,
       handler() {
-        this.checkValues();
+        this.checkValues()
       }
     }
   }
@@ -215,10 +245,10 @@ export default {
   justify-content: start;
   font-weight: bold;
   flex-direction: column;
-  margin-top: 0.50rem;
+  margin-top: 0.5rem;
 }
 
-.container>.model {
+.container > .model {
   height: 10px;
 }
 
@@ -266,7 +296,7 @@ export default {
   margin-right: 1rem;
 }
 
-.topics>button {
+.topics > button {
   width: 72px;
   padding: 0.25rem;
   margin-right: 0.25rem;
@@ -276,11 +306,11 @@ export default {
   white-space: nowrap;
 }
 
-.text-container>div>span:hover {
+.text-container > div > span:hover {
   cursor: pointer;
   background-color: var(--main-green-one);
   transition: background-color 0.25s ease;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .text {
@@ -296,7 +326,7 @@ export default {
 
 .isActive {
   background-color: var(--main-green-one);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 button.cta {
@@ -324,6 +354,5 @@ button.cta {
     display: flex;
     flex-direction: row;
   }
-
 }
 </style>

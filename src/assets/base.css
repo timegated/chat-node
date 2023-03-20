@@ -5,6 +5,8 @@
   --main-bg-color-one: hsla(210, 16%, 82%, 1);
   --main-green-one: hsla(232, 51%, 36%, 1);
   --secondary-text-color-light: hsla(210, 24%, 16%, 1);
+  --code-background: hsla(233, 31%, 17%, 1);
+  --code-string-accent: hsla(0, 80%, 63%, 1);
   --section-gap: 160px;
 }
 
