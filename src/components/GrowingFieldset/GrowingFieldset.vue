@@ -58,7 +58,6 @@ fieldset {
   align-items: center;
   border-radius: 16px;
   border-color: var(--main-accent-color-light);
-  margin: auto;
   max-width: 50vw;
   resize: none;
 }
@@ -71,5 +70,12 @@ textarea {
   line-height: 1.4;
   font-family: inherit;
   border-radius: 8px
+}
+
+@media screen and (max-width: 1600px) {
+  fieldset {
+    max-width: 55vw;
+    margin: auto;
+  }
 }
 </style>

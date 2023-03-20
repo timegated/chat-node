@@ -24,10 +24,9 @@
     </section>
     <section class="response-container">
       <div class="responses">
-        <section :key="response.text" v-for="response in responses">
-          <span class="model">Using model {{ store.model }}. With Prompt: {{ response.prompt }}</span>
-          <div class="response">
-            {{ response.text.replace('undefined', '') }}
+        <section :key="parsed.text" v-for="parsed in parseMarkdown">
+          <span class="model">Using model {{ store.model }}. With Prompt: {{ parsed.prompt }}</span>
+          <div v-html="parsed.text" class="response">
           </div>
         </section>
       </div>
@@ -36,6 +35,7 @@
       <div class="btn-container">
         <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
         <button class="cta" @click="streamChatResponse">Get Answer</button>
+        <button class="cta" @click="streamResponse">Stream</button>
       </div>
     </section>
   </section>
@@ -46,6 +46,15 @@ import { store } from '../store/store';
 import { BASE_URL_DEV } from '@/utils/urlHandler';
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 import { buildSentence } from '../utils/promptBuilder/promptBuilder';
+import { marked } from 'marked';
+import {highlightAuto} from 'highlightjs';
+import axios from 'axios';
+
+marked.setOptions({
+  highlight: function(code) {
+    return highlightAuto(code).value;
+  }
+});
 
 interface Responses {
   text: string,
@@ -93,6 +102,14 @@ export default {
     getCurrentRolePrompts() {
       const currentTopic = this.currentTopic === "" ? 'sql' : this.currentTopic;
       return store.topics[currentTopic].roles;
+    },
+    parseMarkdown () {
+        return this.responses.map((response) => {
+          return {
+            ...response,
+            text: marked(response.text)
+          }
+        });
     }
   },
   methods: {
@@ -100,35 +117,11 @@ export default {
       this.index++;
     },
     async streamResponse() {
-      try {
-        const response = await fetch(`${BASE_URL_DEV}/stream?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
-          method: 'GET',
-          headers: {
-            'response-type': 'text/stream'
-          }
-        });
-        let processing = true;
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder('utf-8');
-        while (processing) {
-          const read: any = await reader?.read();
-          if (read.done) {
-            processing = false;
-            break;
-          }
-          const chunk = decoder.decode(read.value, { stream: true });
-          this.responses[this.index].text += chunk ? chunk : "";
-          this.responses[this.index].prompt = this.prompt;
-        }
-
-        this.incResponseIndex();
-        this.responses.push({
-          text: "",
-          prompt: ""
+        const response = await axios.get(`${BASE_URL_DEV}/stream/chat?prompt=${this.compiledPrompt === '' ? this.prompt : this.compiledPrompt}&model=${store.model}`, {
+          responseType: 'stream',
         })
-      } catch (error: any) {
-        throw new Error(error);
-      }
+
+        console.log(response);
     },
     async streamChatResponse() {
       try {
@@ -148,7 +141,8 @@ export default {
             break;
           }
           const chunk = decoder.decode(read.value, { stream: true });
-          this.responses[this.index].text += chunk ? chunk : "";
+
+          this.responses[this.index].text += chunk;
           this.responses[this.index].prompt = this.compiledPrompt === '' ? this.prompt : this.compiledPrompt;
         }
         this.incResponseIndex();
@@ -239,7 +233,6 @@ export default {
 .responses {
   height: 35vw;
   max-width: 50vw;
-  margin: auto;
   overflow: auto;
   border: 1px solid var(--main-accent-color-light);
   border-radius: 8px;
@@ -311,7 +304,6 @@ export default {
 
 button.cta {
   width: 50vw;
-  margin: auto;
 }
 
 .prompt-titles {
@@ -324,6 +316,16 @@ button.cta {
     display: flex;
     flex-direction: column;
     width: 100%;
+  }
+
+  .responses {
+    max-width: 55vw;
+    margin: auto;
+  }
+
+  .text-container {
+    display: flex;
+    flex-direction: row;
   }
 
 }
