@@ -1,9 +1,15 @@
 <template>
-  <header>
-    <h1>Chat Node</h1>
-    <p>More direct and valuable answers from large language models</p>
+  <header class="welcome-header">
+    <div>
+      <div>
+        <h1 class="welcome-header-title">Chat Node</h1>
+      </div>
+      <div>
+        <p class="byline">More direct and valuable answers from large language models</p>
+        <section class="byline">Currently Available Models: {{ availableModels }}</section>
+      </div>
+    </div>
   </header>
-  <section>Currently Available Models: {{ availableModels }}</section>
   <section class="card-container">
     <article class="card" :key="title" v-for="{ title, info, footerInfo } of cards">
       <aside class="card-inner">
@@ -51,7 +57,7 @@ export default {
         },
         {
           title: 'Fine Tuning',
-          info: 'Upload your data to create custom models that understand your prompts in greater detail.',
+          info: 'Upload your data to create custom models that understand responses in greater detail.',
           footerInfo: 'Learn More',
           link: ''
         },
@@ -82,12 +88,17 @@ export default {
 </script>
 
 <style>
-header > h1 {
-  font-weight: bold;
-  color: var(--main-accent-color-light)
+.welcome-header {
+  display: flex;
+  justify-content: center;
 }
 
-header > p {
+.welcome-header-title {
+  font-weight: bold;
+  color: var(--main-accent-color-light);
+}
+
+.byline {
   font-weight: 500;
   color: var(--main-color-darkgreen);
 }
