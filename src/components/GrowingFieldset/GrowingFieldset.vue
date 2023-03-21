@@ -2,7 +2,7 @@
   <div class="fieldset-container">
     <fieldset :style="{ height: fieldsetHeight }">
       <legend>Prompt</legend>
-      <textarea :prompt="prompt" :value="value" @input="onInputValue" ref="textarea"></textarea>
+      <textarea :value="value" @input="onInputValue" ref="textarea"></textarea>
     </fieldset>
   </div>
 </template>
@@ -14,7 +14,6 @@ export default defineComponent({
   name: 'GrowingFieldset',
   props: {
     value: String,
-    prompt: String
   },
   emits: ['update:value', 'update:prompt'],
   setup(props, { emit }) {
@@ -26,13 +25,10 @@ export default defineComponent({
     }
 
     const textareaRef = ref<any>(null);
-
     const onInputValue = (event: any): void => {
       const target = event.target as HTMLTextAreaElement;
       text.value = target.value;
-      if (!props.value) {
-        emit('update:prompt', text.value)
-      }
+
       emit('update:value', text.value);
     }
 
