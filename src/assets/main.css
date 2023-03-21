@@ -18,11 +18,6 @@ span {
   color: var(--main-accent-color-light)
 }
 
-.btn-container {
-  display: flex;
-  justify-content: space-between;
-}
-
 button {
   background-color: var(--main-bg-color-one);
   color: var(--main-accent-color-light);
@@ -46,4 +41,36 @@ button:visited {
   color: #FFFFFF;
 }
 
+pre {
+  background-color: var(--code-background);
+  border-radius: 16px;
+  padding: 30px;
+  overflow: auto;
+}
+
+pre code {
+  color: white;
+  white-space: wrap;
+}
+
+.hljs-string {
+  color: var(--code-string-accent)
+}
+
+.hljs-attr {
+  color:aquamarine;
+}
+
+.hljs-number {
+  color:aqua;
+}
+
+@media only screen and (max-width: 1600px) {
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+}
 
