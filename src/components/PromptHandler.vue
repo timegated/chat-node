@@ -151,7 +151,8 @@ export default {
           {
             method: 'GET',
             headers: {
-              'response-type': 'text/stream'
+              'response-type': 'text/stream',
+              'Referrer-Policy': 'no-referrer'
             }
           }
         )
