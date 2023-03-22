@@ -39,6 +39,7 @@
 <script lang="ts">
 import { store } from '../store/store'
 import axios from 'axios'
+import { BASE_API_URL } from '@/utils/urlHandler'
 
 interface Permission {
   id: string
@@ -97,25 +98,28 @@ export default {
     }
   },
   methods: {
-    filterCodeEngines() {
-      this.models = this.models.filter((model: Models) => {
-        console.log(model)
+    async filterCodeEngines() {
+      const engines = await axios.get(`${BASE_API_URL}/engines`);
+        this.models = engines.data.filter((model: Models) => {
         return model.id.substring(0, 5).includes('code')
       })
     },
-    filterTextEngines() {
-      this.models = this.models.filter((model) => {
-        return model.id.includes('text-davinci')
+    async filterTextEngines() {
+      const engines = await axios.get(`${BASE_API_URL}/engines`);
+        this.models = engines.data.filter((model: Models) => {
+        return model.id.substring(0, 5).includes('text')
       })
     },
-    filterGPT() {
-      this.models = this.models.filter((model) => {
+    async filterGPT() {
+      const engines = await axios.get(`${BASE_API_URL}/engines`);
+        this.models = engines.data.filter((model: Models) => {
         return model.id.includes('gpt')
       })
+
     },
     async getAllEngines(): Promise<void> {
       try {
-        const engines = await axios.get(`/engines`)
+        const engines = await axios.get(`${BASE_API_URL}/engines`)
         this.models = engines.data
       } catch (error) {
         console.error(error)

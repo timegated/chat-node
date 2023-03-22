@@ -151,7 +151,7 @@ export default {
           {
             method: 'GET',
             headers: {
-              'response-type': 'text/stream',
+              'Accept': 'text/stream',
             }
           }
         )
@@ -255,8 +255,6 @@ export default {
   height: 35vw;
   max-width: 50vw;
   overflow: auto;
-  border: 1px solid var(--main-accent-color-light);
-  border-radius: 8px;
   padding: 0.75rem;
 }
 
