@@ -1,5 +1,5 @@
 <script lang="ts">
-import { BASE_URL_DEV } from '@/utils/urlHandler';
+import { BASE_API_URL } from '@/utils/urlHandler';
 import axios from 'axios';
 
 export default {
@@ -24,7 +24,7 @@ export default {
       
       try {
         // Replace this URL with the third-party API URL
-        const apiUrl = `${BASE_URL_DEV}/files/upload`;
+        const apiUrl = `${BASE_API_URL}/files/upload`;
         const response = await axios.post(apiUrl, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',

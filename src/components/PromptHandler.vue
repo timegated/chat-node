@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { store } from '../store/store'
-import { BASE_URL_DEV } from '@/utils/urlHandler'
+import { BASE_API_URL } from '@/utils/urlHandler'
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 import { buildSentence } from '../utils/promptBuilder/promptBuilder'
 import DOMPurify from 'dompurify'
@@ -147,7 +147,7 @@ export default {
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_URL_DEV}/stream/chat?prompt=${this.prompt}&model=${store.model}`,
+          `${BASE_API_URL}/stream/chat?prompt=${this.prompt}&model=${store.model}`,
           {
             method: 'GET',
             headers: {

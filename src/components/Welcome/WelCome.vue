@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { BASE_URL_DEV } from '@/utils/urlHandler'
+import { BASE_API_URL } from '@/utils/urlHandler'
 import axios from 'axios'
 
 interface Cards {
@@ -73,7 +73,7 @@ export default {
   methods: {
     async fetchAvailableModels() {
       try {
-        const engines = await axios.get(`${BASE_URL_DEV}/engines`)
+        const engines = await axios.get(`${BASE_API_URL}/engines`)
         this.availableModels = engines.data.length
       } catch (error) {
         console.error(error)
