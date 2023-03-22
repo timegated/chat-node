@@ -151,7 +151,7 @@ export default {
           {
             method: 'GET',
             headers: {
-              'response-type': 'text/plain',
+              'response-type': 'text/stream',
             }
           }
         )
