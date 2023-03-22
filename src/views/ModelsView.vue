@@ -38,7 +38,6 @@
 
 <script lang="ts">
 import { store } from '../store/store'
-import { BASE_API_URL } from '@/utils/urlHandler'
 import axios from 'axios'
 
 interface Permission {
@@ -116,7 +115,7 @@ export default {
     },
     async getAllEngines(): Promise<void> {
       try {
-        const engines = await axios.get(`${BASE_API_URL}/engines`)
+        const engines = await axios.get(`/engines`)
         this.models = engines.data
       } catch (error) {
         console.error(error)

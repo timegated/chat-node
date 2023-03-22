@@ -73,7 +73,7 @@ export default {
   methods: {
     async fetchAvailableModels() {
       try {
-        const engines = await axios.get(`${BASE_API_URL}/engines`)
+        const engines = await axios.get(`/engines`)
         this.availableModels = engines.data.length
       } catch (error) {
         console.error(error)

@@ -1,5 +1,4 @@
 <script lang="ts">
-import { BASE_API_URL } from '@/utils/urlHandler';
 import axios from 'axios';
 
 
@@ -30,7 +29,7 @@ export default {
     async createFineTune (): Promise<void> {
       try {
         const id = this.fileId;
-        const post = await axios.post(`${BASE_API_URL}/fine-tune`, { id });
+        const post = await axios.post(`/fine-tune`, { id });
         console.log(post);
       } catch (error) {
         console.error(error);
@@ -40,7 +39,7 @@ export default {
     async retrieveStatus(): Promise<void> {
       try {
         const id = this.fileId;
-        const getStatus = await axios.get(`${BASE_API_URL}/fine-tune/status/${id}`);
+        const getStatus = await axios.get(`/fine-tune/status/${id}`);
         console.log(getStatus);
       } catch (error) {
         console.error(error);
@@ -54,7 +53,7 @@ export default {
     }
   },
   async created() {
-    const available = await axios.get(`${BASE_API_URL}/files/list`);
+    const available = await axios.get(`/files/list`);
     this.files = available.data.data;
   }
 }
