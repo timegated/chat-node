@@ -152,7 +152,6 @@ export default {
             method: 'GET',
             headers: {
               'response-type': 'text/stream',
-              'Referrer-Policy': 'no-referrer'
             }
           }
         )
@@ -166,7 +165,7 @@ export default {
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
-
+          console.log(chunk)
           this.responses[this.index].text += chunk
           this.responses[this.index].prompt = this.prompt
         }
