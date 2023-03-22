@@ -17,7 +17,7 @@
           <span class="prompt-titles">Base Prompts</span>
           <span
             :key="p.prompt"
-            :class="{ isActive: p.prompt === prompt }"
+            :class="{ isActive: p.prompt === compiledPrompt }"
             v-for="p in getCurrentTopicPrompts"
             @click="pushPrompt"
             class="text"
@@ -47,12 +47,7 @@
           <div v-html="parsed.text" class="response"></div>
         </section>
       </div>
-      <GrowingFieldset
-        :prompt="prompt"
-        :value="parseCompiledPrompt"
-        @update:value="compiledPrompt = $event"
-        @update:prompt="prompt = $event"
-      ></GrowingFieldset>
+      <GrowingFieldset :value="prompt" @update:value="prompt = $event"></GrowingFieldset>
       <div class="btn-container">
         <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
         <button class="cta" @click="streamChatResponse">Get Answer</button>
@@ -63,7 +58,7 @@
 
 <script lang="ts">
 import { store } from '../store/store'
-import { BASE_URL_DEV } from '@/utils/urlHandler'
+import { BASE_API_URL } from '@/utils/urlHandler'
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 import { buildSentence } from '../utils/promptBuilder/promptBuilder'
 import DOMPurify from 'dompurify'
@@ -135,12 +130,14 @@ export default {
     },
     parseCompiledPrompt() {
       let words = this.compiledPrompt.split(' ')
-      return words.map((word, index) => {
-        if (index === 0) {
-          return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
-        }
-        return word.toLowerCase();
-      }).join(' ')
+      return words
+        .map((word, index) => {
+          if (index === 0) {
+            return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
+          }
+          return word.toLowerCase()
+        })
+        .join(' ')
     }
   },
   methods: {
@@ -150,9 +147,7 @@ export default {
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_URL_DEV}/stream/chat?prompt=${
-            this.compiledPrompt === '' ? this.prompt : this.compiledPrompt
-          }&model=${store.model}`,
+          `${BASE_API_URL}/stream/chat?prompt=${this.prompt}&model=${store.model}`,
           {
             method: 'GET',
             headers: {
@@ -172,8 +167,7 @@ export default {
           const chunk = decoder.decode(read.value, { stream: true })
 
           this.responses[this.index].text += chunk
-          this.responses[this.index].prompt =
-            this.compiledPrompt === '' ? this.prompt : this.compiledPrompt
+          this.responses[this.index].prompt = this.prompt
         }
         this.incResponseIndex()
         this.responses.push({
@@ -185,7 +179,7 @@ export default {
       }
     },
     pushPrompt(e: any) {
-      this.prompt = e.target.textContent
+      this.compiledPrompt = e.target.textContent
     },
     pushRole(e: any) {
       this.role = e.target.textContent
@@ -196,10 +190,10 @@ export default {
       this.role = ''
     },
     buildPrompt() {
-      this.compiledPrompt = buildSentence(this.currentTopic, this.prompt, this.role)
+      this.prompt = buildSentence(this.currentTopic, this.compiledPrompt, this.role)
     },
     checkValues() {
-      const currentPrompt = this.prompt !== ''
+      const currentPrompt = this.compiledPrompt !== ''
       const currentRole = this.role !== ''
       const currentTopic = this.currentTopic !== ''
       if (currentPrompt && currentRole && currentTopic) {
@@ -208,7 +202,7 @@ export default {
     }
   },
   watch: {
-    prompt: {
+    compiledPrompt: {
       immediate: true,
       handler() {
         this.checkValues()

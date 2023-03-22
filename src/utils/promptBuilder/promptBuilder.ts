@@ -114,11 +114,6 @@ export const topics: PromptText = {
 };
 
 export const buildSentence = (topic: string, prompt: string, role: string) => {
-  console.group();
-  console.log(topic);
-  console.log(prompt);
-  console.log(role);
-  console.groupEnd();
   const sentenceMap = new Map();
   sentenceMap.set('role', role);
   sentenceMap.set('and', 'role');
@@ -126,7 +121,6 @@ export const buildSentence = (topic: string, prompt: string, role: string) => {
 
   const sentence: string[] = [];
   sentenceMap.forEach((value: string, key: string) => {
-    console.log(value, key);
     if (key === 'prompt') {
       sentence.push(getPrompt(topic, value));
     } else if (key === 'role') {
@@ -139,14 +133,12 @@ export const buildSentence = (topic: string, prompt: string, role: string) => {
 }
 
 const getRole = (topic: keyof PromptText, role: string): string => {
-  console.log('topic: ', topic);
   const rIdx = topics[topic].roles.findIndex((r) => r.role === role.trim());
   if (rIdx === -1) return '';
   return topics[topic].roles[rIdx].role;
 }
 
 const getPrompt = (topic: keyof PromptText, prompt: string): string => {
-  console.log('topic: ', topic);
   const pIdx = topics[topic].prompts.findIndex((p) => p.prompt === prompt.trim());
   if (pIdx === -1) return '';
   return topics[topic].prompts[pIdx].prompt;
