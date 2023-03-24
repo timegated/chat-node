@@ -8,6 +8,14 @@
   height: 100vh;
 }
 
+@media only screen and (max-width: 1600px) {
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }  
+}
+
 a {
   color: #FFFFFF;
   text-decoration: none;

@@ -3,10 +3,10 @@ import type { PromptText } from '../../store/types/prompt-text';
 export const topics: PromptText = {
   sql: {
     prompts: [
-      { prompt: 'Explain SQL' },
-      { prompt: 'Explain INNER JOIN' },
-      { prompt: 'Explain what a Join is' },
-      { prompt: 'Explain what different versions of SQL exist' },
+      { prompt: 'explain SQL' },
+      { prompt: 'explain INNER JOIN' },
+      { prompt: 'explain what a Join is' },
+      { prompt: 'explain what different versions of SQL exist' },
     ],
     roles: [
       {
@@ -25,10 +25,10 @@ export const topics: PromptText = {
   },
   js: {
     prompts: [
-      { prompt: 'Explain Javascript' },
-      { prompt: 'Explain optional chaining in Javascript' },
-      { prompt: 'Explain first class functions in JS' },
-      { prompt: 'Explain prototypal inheritance' },
+      { prompt: 'explain Javascript' },
+      { prompt: 'explain optional chaining in Javascript' },
+      { prompt: 'explain first class functions in JS' },
+      { prompt: 'explain prototypal inheritance' },
     ],
     roles: [
       {
@@ -47,10 +47,10 @@ export const topics: PromptText = {
   },
   python: {
     prompts: [
-      { prompt: 'Explain Python' },
-      { prompt: 'Explain tuples in Python' },
-      { prompt: 'Explain the def keyword in Python' },
-      { prompt: 'Explain range keyword in Python' },
+      { prompt: 'explain Python' },
+      { prompt: 'explain tuples in Python' },
+      { prompt: 'explain the def keyword in Python' },
+      { prompt: 'explain range keyword in Python' },
     ],
     roles: [
       {
@@ -69,10 +69,10 @@ export const topics: PromptText = {
   },
   go: {
     prompts: [
-      { prompt: 'Explain GO' },
-      { prompt: 'Explain multiplexing in GO' },
-      { prompt: 'Explain concurrency in GO' },
-      { prompt: 'Explain immediate assignment in GO' },
+      { prompt: 'explain GO' },
+      { prompt: 'explain multiplexing in GO' },
+      { prompt: 'explain concurrency in GO' },
+      { prompt: 'explain immediate assignment in GO' },
     ],
     roles: [
       {
@@ -91,10 +91,10 @@ export const topics: PromptText = {
   },
   http: {
     prompts: [
-      { prompt: 'Explain HTTP' },
-      { prompt: 'Explain request methods in HTTP' },
-      { prompt: 'Explain error codes in HTTP' },
-      { prompt: 'Explain status codes in HTTP' },
+      { prompt: 'explain HTTP' },
+      { prompt: 'explain request methods in HTTP' },
+      { prompt: 'explain error codes in HTTP' },
+      { prompt: 'explain status codes in HTTP' },
     ],
     roles: [
       {

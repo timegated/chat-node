@@ -47,9 +47,10 @@
           <div v-html="parsed.text" class="response"></div>
         </section>
       </div>
+    </section>
+    <section class="input-container">
       <GrowingFieldset :value="prompt" @update:value="prompt = $event"></GrowingFieldset>
       <div class="btn-container">
-        <!-- <button @click="getMultipleAnswers">Multiple Answers</button> -->
         <button class="cta" @click="streamChatResponse">Get Answer</button>
       </div>
     </section>
@@ -179,13 +180,13 @@ export default {
       }
     },
     pushPrompt(e: any) {
-      this.compiledPrompt = e.target.textContent
+      this.compiledPrompt = e.target.textContent;
     },
     pushRole(e: any) {
-      this.role = e.target.textContent
+      this.role = e.target.textContent;
     },
     pushTopic(e: any) {
-      this.currentTopic = e.target.textContent
+      this.currentTopic = e.target.textContent;
       this.prompt = ''
       this.role = ''
     },
@@ -249,6 +250,7 @@ export default {
 .response-container {
   max-width: 100vw;
   padding: 10px;
+  height: 100%;
 }
 
 .responses {
@@ -344,7 +346,8 @@ button.cta {
 
   .text-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    display: none;
   }
 }
 </style>

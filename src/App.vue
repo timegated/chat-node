@@ -31,10 +31,11 @@ nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 10vw;
+  width: 150px;
   font-size: 24px;
   text-align: center;
   height: 100vh;
+  border-radius: 0 16px 16px 0;
   background-color: var(--main-color-darkgreen);
 }
 
@@ -54,5 +55,26 @@ nav a {
 
 nav a:first-of-type {
   border: 0;
+}
+
+@media screen and (max-width: 1600px) {
+  header {
+    max-height: auto;
+    max-width: 100%;
+  }
+
+  nav {
+  position: static;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  border-radius: 0 0 0 0;
+  background-color: var(--main-color-darkgreen);
+  height: 100px;
+}
 }
 </style>

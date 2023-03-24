@@ -1,10 +1,10 @@
 
-import PromptHandler from '@/components/PromptHandler.vue';
+import Chat from '@/components/Chat.vue';
 
 <script setup lang="ts">
-import PromptHandler from '../components/PromptHandler.vue'
+import ChatHandler from '../components/ChatHandler.vue'
 </script>
 
 <template>
-    <PromptHandler />
+    <ChatHandler />
 </template>
