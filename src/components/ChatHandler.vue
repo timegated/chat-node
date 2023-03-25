@@ -13,8 +13,8 @@
         </button>
       </div>
       <div class="text-container">
+        <span class="prompt-titles">Base Prompts</span>
         <div>
-          <span class="prompt-titles">Base Prompts</span>
           <span
             :key="p.prompt"
             :class="{ isActive: p.prompt === compiledPrompt }"
@@ -25,8 +25,8 @@
             {{ p.prompt }}
           </span>
         </div>
+        <span class="prompt-titles">Roles</span>
         <div>
-          <span class="prompt-titles">Roles</span>
           <span
             :key="r.role"
             :class="{ isActive: r.role === role }"
@@ -39,6 +39,12 @@
           </span>
         </div>
       </div>
+      <section class="input-container">
+      <GrowingFieldset :value="prompt" @update:value="prompt = $event"></GrowingFieldset>
+      <div class="btn-container">
+        <button class="cta" @click="streamChatResponse">Get Answer</button>
+      </div>
+    </section>
     </section>
     <section class="response-container">
       <div class="responses">
@@ -46,12 +52,6 @@
           <span class="model">Using model {{ store.model }}. With Prompt: {{ parsed.prompt }}</span>
           <div v-html="parsed.text" class="response"></div>
         </section>
-      </div>
-    </section>
-    <section class="input-container">
-      <GrowingFieldset :value="prompt" @update:value="prompt = $event"></GrowingFieldset>
-      <div class="btn-container">
-        <button class="cta" @click="streamChatResponse">Get Answer</button>
       </div>
     </section>
   </section>
@@ -234,10 +234,17 @@ export default {
   grid-gap: 10px;
 }
 
+.input-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .topic-container {
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
   font-weight: bold;
   flex-direction: column;
   margin-top: 0.5rem;
@@ -296,8 +303,9 @@ export default {
   margin-right: 0.25rem;
 }
 
-.text-container {
-  white-space: nowrap;
+.text-container > div {
+  display: grid;
+  grid-template-columns: 1fr;
 }
 
 .text-container > div > span:hover {
@@ -311,11 +319,12 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  border: 1px solid var(--main-accent-color-light);
+  /* border: 1px solid var(--main-accent-color-light); */
+  text-overflow: ellipsis;
+  white-space: nowrap;
   border-radius: 8px;
   margin-top: 10px;
   padding: 10px;
-  height: 36px;
 }
 
 .isActive {
@@ -324,7 +333,7 @@ export default {
 }
 
 button.cta {
-  width: 50vw;
+  width: 15vw;
 }
 
 .prompt-titles {

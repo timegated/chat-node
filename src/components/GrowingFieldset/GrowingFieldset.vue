@@ -54,7 +54,7 @@ fieldset {
   align-items: center;
   border-radius: 16px;
   border-color: var(--main-accent-color-light);
-  max-width: 50vw;
+  max-width: 30vw;
   resize: none;
 }
 
