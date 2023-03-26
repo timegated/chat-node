@@ -235,10 +235,7 @@ export default {
 }
 
 .input-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
 }
 
 .topic-container {
@@ -332,8 +329,13 @@ export default {
   color: #ffffff;
 }
 
+.btn-container {
+  display: flex;
+  justify-content: center;
+}
+
 button.cta {
-  width: 15vw;
+  width: 100%;
 }
 
 .prompt-titles {
@@ -357,6 +359,10 @@ button.cta {
     display: flex;
     flex-direction: column;
     display: none;
+  }
+
+  button.cta {
+    width: 30vw;
   }
 }
 </style>
