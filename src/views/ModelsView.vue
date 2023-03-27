@@ -30,8 +30,8 @@
             <span>is blocking: {{ perm.is_blocking }}</span>
           </aside>
         </div>
-            <div class="icon-container">
-              <img @click="rediectToPromptPage" :src="chatIcon" alt="Chat with this model" title="Chat with this model">
+            <div @click="rediectToPromptPage" class="icon-container">
+              <img :src="chatIcon" alt="Chat with this model" title="Chat with this model">
             </div>
       </article>
     </section>
@@ -133,7 +133,7 @@ export default {
       }
     },
     rediectToPromptPage(e: any) {
-      this.store.model = e.target.parentElement.childNodes[0].childNodes[0].textContent;
+      this.store.model = e.target.parentElement.parentElement.childNodes[0].childNodes[0].textContent;
       this.$router.push('/prompts')
     },
     formatDate(dateNum: number) {
@@ -154,6 +154,16 @@ export default {
 </script>
 
 <style>
+.icon-container > img {
+  padding: 1px;
+}
+
+.icon-container > img:hover {
+  cursor: pointer;
+  border: 1px solid #F35627;
+  border-radius: 50%;
+}
+
 h1 {
   font-weight: bold;
   color: var(--main-accent-color-light);
