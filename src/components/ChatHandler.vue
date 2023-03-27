@@ -232,6 +232,8 @@ export default {
   display: grid;
   grid-template-columns: 1fr 2fr;
   grid-gap: 10px;
+  align-items: center;
+  align-content: center;
 }
 
 .input-container {
@@ -285,7 +287,6 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
 .topic-title {
@@ -297,7 +298,6 @@ export default {
 .topics > button {
   width: 72px;
   padding: 0.25rem;
-  margin-right: 0.25rem;
 }
 
 .text-container > div {
@@ -316,7 +316,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  /* border: 1px solid var(--main-accent-color-light); */
   text-overflow: ellipsis;
   white-space: nowrap;
   border-radius: 8px;

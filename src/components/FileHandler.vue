@@ -23,7 +23,6 @@ export default {
       formData.append('file', this.file);
       
       try {
-        // Replace this URL with the third-party API URL
         const apiUrl = `${BASE_API_URL}/files/upload`;
         const response = await axios.post(apiUrl, formData, {
           headers: {

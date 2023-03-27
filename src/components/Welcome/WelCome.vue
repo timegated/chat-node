@@ -11,7 +11,7 @@
     </div>
   </header>
   <section class="card-container">
-    <article class="card" :key="title" v-for="{ title, info, footerInfo } of cards">
+    <article class="card" :key="title" v-for="{ title, info, footerInfo, link } of cards">
       <aside class="card-inner">
         <div class="card-front">
           <div class="card-title">
@@ -21,7 +21,7 @@
         <div class="card-back">
           <p>{{ info }}</p>
           <div>
-            <a href="#">{{ footerInfo }}</a>
+            <a :href="link" target="_blank" rel="noopener noreferrer">{{ footerInfo }}</a>
           </div>
         </div>
       </aside>
@@ -51,21 +51,21 @@ export default {
       cards: [
         {
           title: 'Prompts',
-          info: 'Use preset suggestions known generate better responses to speed up your workflow.',
+          info: 'Use preset suggestions to generate better responses and speed up your workflow.',
           footerInfo: 'Learn More',
-          link: ''
+          link: 'https://platform.openai.com/docs/guides/completion/prompt-design'
         },
         {
           title: 'Fine Tuning',
           info: 'Upload your data to create custom models that understand responses in greater detail.',
           footerInfo: 'Learn More',
-          link: ''
+          link: 'https://platform.openai.com/docs/guides/fine-tuning/fine-tuning'
         },
         {
           title: 'Embedding',
           info: 'Create custom embeddings that make it easier for the model to search for specific things about your data.',
           footerInfo: 'Learn More',
-          link: ''
+          link: 'https://platform.openai.com/docs/guides/embeddings/embeddings'
         }
       ]
     } as WelcomeData

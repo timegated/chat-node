@@ -30,16 +30,20 @@
             <span>is blocking: {{ perm.is_blocking }}</span>
           </aside>
         </div>
-          <button class="btn-select" @click="store.setModelParam">Select Model</button>
+            <div class="icon-container">
+              <img @click="rediectToPromptPage" :src="chatIcon" alt="Chat with this model" title="Chat with this model">
+            </div>
       </article>
     </section>
   </section>
 </template>
 
 <script lang="ts">
-import { store } from '../store/store'
-import axios from 'axios'
-import { BASE_API_URL } from '@/utils/urlHandler'
+import { store } from '../store/store';
+import axios from 'axios';
+import { BASE_API_URL } from '@/utils/urlHandler';
+import chat from '../assets/icon-chat.svg';
+
 
 interface Permission {
   id: string
@@ -70,7 +74,8 @@ interface Data {
   models: Models[]
   toggleInfo: boolean
   toggleText: string
-  store: any
+  store: any;
+  chatIcon: string;
 }
 
 export default {
@@ -79,7 +84,8 @@ export default {
       models: [],
       toggleInfo: false,
       toggleText: 'More Info',
-      store
+      store,
+      chatIcon: chat
     }
   },
   computed: {
@@ -126,6 +132,10 @@ export default {
         throw error
       }
     },
+    rediectToPromptPage(e: any) {
+      this.store.model = e.target.parentElement.childNodes[0].childNodes[0].textContent;
+      this.$router.push('/prompts')
+    },
     formatDate(dateNum: number) {
       return dateNum
     },
@@ -139,7 +149,7 @@ export default {
   },
   created() {
     this.getAllEngines()
-  }
+  },
 }
 </script>
 
@@ -157,9 +167,8 @@ h1 {
 
 .models-container {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-gap: 10px;
-  max-width: 50vw;
 }
 
 .get-all {
@@ -184,17 +193,17 @@ h1 {
 .model-cards {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: start;
   border: 1px solid var(--main-accent-color-light);
   padding: 1.25rem;
   border-radius: 16px;
 }
 
-.btn-select {
-  font-size: 24px;
-  font-weight: bold;
-  border: none;
+.icon-container {
+  display: flex;
+  justify-content: end;
+  width: 100%;
 }
 
 .model-basic-info {
