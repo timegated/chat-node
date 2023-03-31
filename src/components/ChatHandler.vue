@@ -1,7 +1,7 @@
 <template>
   <section class="container">
     <section class="topic-container">
-      <div class="topics">
+      <!-- <div class="topics">
         <span class="topic-title">Topics:</span>
         <button
           :key="topicChoice"
@@ -11,8 +11,8 @@
         >
           {{ topicChoice }}
         </button>
-      </div>
-      <div class="text-container">
+      </div> -->
+      <!-- <div class="text-container">
         <span class="prompt-titles">Base Prompts</span>
         <div>
           <span
@@ -37,10 +37,11 @@
           >
             {{ r.role }}
           </span>
-        </div>
-      </div>
+        </div> -->
+      <!-- </div> -->
+      <PromptComponent />
       <section class="input-container">
-      <GrowingFieldset :value="prompt" @update:value="prompt = $event"></GrowingFieldset>
+      <GrowingFieldset :value="store.currentPrompt" @update:value="store.currentPrompt = $event" />
       <div class="btn-container">
         <button class="cta" @click="streamChatResponse">Get Answer</button>
       </div>
@@ -60,11 +61,12 @@
 <script lang="ts">
 import { store } from '../store/store'
 import { BASE_API_URL } from '@/utils/urlHandler'
-import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
-import { buildSentence } from '../utils/promptBuilder/promptBuilder'
+// import { buildSentence } from '../utils/promptBuilder/promptBuilder'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import hljs from 'highlightjs'
+import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue';
+import PromptComponent from './Prompts/PromptComponent.vue'
 
 const renderer = new marked.Renderer()
 marked.setOptions({
@@ -80,8 +82,6 @@ interface Responses {
 }
 
 interface Data {
-  topicChoices: string[]
-  currentTopic: string
   prompt: string
   compiledPrompt: string
   role: string
@@ -95,12 +95,11 @@ interface Data {
 
 export default {
   components: {
-    GrowingFieldset
+    GrowingFieldset,
+    PromptComponent
   },
   data(): Data {
     return {
-      topicChoices: ['sql', 'http', 'js', 'python', 'go'],
-      currentTopic: '',
       prompt: '',
       compiledPrompt: '',
       role: '',
@@ -113,14 +112,14 @@ export default {
     }
   },
   computed: {
-    getCurrentTopicPrompts() {
-      const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
-      return store.topics[currentTopic].prompts
-    },
-    getCurrentRolePrompts() {
-      const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
-      return store.topics[currentTopic].roles
-    },
+    // getCurrentTopicPrompts() {
+    //   const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
+    //   return store.topics[currentTopic].prompts
+    // },
+    // getCurrentRolePrompts() {
+    //   const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
+    //   return store.topics[currentTopic].roles
+    // },
     parseMarkdown() {
       return this.responses.map((response) => {
         return {
@@ -148,7 +147,7 @@ export default {
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_API_URL}/stream/chat?prompt=${this.prompt}&model=${store.model}`,
+          `${BASE_API_URL}/stream/chat?prompt=${this.store.currentPrompt}&model=${store.model}`,
           {
             method: 'GET',
             headers: {
@@ -185,21 +184,21 @@ export default {
     pushRole(e: any) {
       this.role = e.target.textContent;
     },
-    pushTopic(e: any) {
-      this.currentTopic = e.target.textContent;
+    pushTopic() {
+      // this.currentTopic = e.target.textContent;
       this.prompt = ''
       this.role = ''
     },
     buildPrompt() {
-      this.prompt = buildSentence(this.currentTopic, this.compiledPrompt, this.role)
+      // this.prompt = buildSentence(this.currentTopic, this.compiledPrompt, this.role)
     },
     checkValues() {
-      const currentPrompt = this.compiledPrompt !== ''
-      const currentRole = this.role !== ''
-      const currentTopic = this.currentTopic !== ''
-      if (currentPrompt && currentRole && currentTopic) {
-        this.buildPrompt()
-      }
+      // const currentPrompt = this.compiledPrompt !== ''
+      // const currentRole = this.role !== ''
+      // const currentTopic = this.currentTopic !== ''
+      // if (currentPrompt && currentRole && currentTopic) {
+      //   this.buildPrompt()
+      // }
     }
   },
   watch: {
@@ -242,11 +241,11 @@ export default {
 
 .topic-container {
   display: flex;
-  align-items: center;
   justify-content: center;
   font-weight: bold;
   flex-direction: column;
   margin-top: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .container > .model {
@@ -281,51 +280,6 @@ export default {
   margin: 1rem 0;
   padding-right: 1rem;
   margin-right: 1rem;
-}
-
-.topics {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.topic-title {
-  font-weight: bold;
-  font-size: 18px;
-  margin-right: 1rem;
-}
-
-.topics > button {
-  width: 72px;
-  padding: 0.25rem;
-}
-
-.text-container > div {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-.text-container > div > span:hover {
-  cursor: pointer;
-  background-color: var(--main-green-one);
-  transition: background-color 0.25s ease;
-  color: #ffffff;
-}
-
-.text {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border-radius: 8px;
-  margin-top: 10px;
-  padding: 10px;
-}
-
-.isActive {
-  background-color: var(--main-green-one);
-  color: #ffffff;
 }
 
 .btn-container {

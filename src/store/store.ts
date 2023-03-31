@@ -1,13 +1,24 @@
 import { reactive } from "vue";
-import { topics } from "@/utils/promptBuilder/promptBuilder";
-import type { PromptText } from './types/prompt-text';
 
+interface Topics {
+  topicid: string;
+  topicname: string;
+  active: boolean;
+}
+
+interface Prompts {
+  prompttext: string;
+}
 export interface GlobalData {
   model:  string;
-  topics: PromptText
+  topics: Topics[],
+  prompts: Prompts[],
+  currentPrompt: string;
 }
 
 export const store: GlobalData = reactive({
   model: 'text-davinci-003',
-  topics,
+  topics: [] as Topics[],
+  prompts: [] as Prompts[],
+  currentPrompt: '',
 });
