@@ -1,29 +1,31 @@
 <template>
-  <span :style="{ fontSize: '24px'}">Choose a Topic</span>
-  <div class="topics">
-    <button
-      :key="topic.topicid"
-      :class="{ isActive: topic.topicname === currentTopic }"
-      v-for="topic in store.topics"
-      @click="pushTopic"
-    >
-      {{ topic.topicname }}
-    </button>
-  </div>
-  <span v-if="store.prompts.length" class="prompt-titles">Base Prompts</span>
-       <div class="text-container" :style="{overflow: 'scroll', maxHeight: '10vw', textAlign: 'left'}">
-        <div>
-          <span
-            :key="index"
-            :class="{ isActive: prompttext === currentPrompt }"
-            v-for="{ prompttext }, index in store.prompts"
-            @click="pushPrompt"
-            class="text"
-          >
-            {{ prompttext }}
-          </span>
-        </div>
-        </div>
+  <section class="topic-container">
+    <span class="prompt-titles">Choose a Topic</span>
+    <div class="topics">
+      <button
+        :key="topic.topicid"
+        :class="{ isActive: topic.topicname === currentTopic }"
+        v-for="topic in store.topics"
+        @click="pushTopic"
+      >
+        {{ topic.topicname }}
+      </button>
+    </div>
+    <span v-if="store.prompts.length" class="prompt-titles">Base Prompts</span>
+         <div class="text-container" :style="{overflow: 'scroll', maxHeight: '15vw', textAlign: 'left'}">
+          <div>
+            <span
+              :key="index"
+              :class="{ isActive: prompttext === currentPrompt }"
+              v-for="{ prompttext }, index in store.prompts"
+              @click="pushPrompt"
+              class="text"
+            >
+              {{ prompttext }}
+            </span>
+          </div>
+          </div>
+  </section>
 </template>
 
 <script lang="ts">
@@ -74,9 +76,17 @@ export default {
 <style scoped>
 .topics {
   display: grid;
-  grid-template-columns: repeat(5, minmax(50px, 1fr));
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
   grid-gap: 5px;
   margin-bottom: 4rem;
+}
+
+.topic-container {
+  display: flex;
+  font-weight: bold;
+  flex-direction: column;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .topic-title {
@@ -86,11 +96,8 @@ export default {
 }
 
 .topics > button {
-  max-width: 150px;
-  padding: 1rem;
   font-weight: bold;
-  font-size: 18px;
-  border-radius: none !important;
+  font-size: 14px;
 }
 
 

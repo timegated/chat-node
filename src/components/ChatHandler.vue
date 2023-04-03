@@ -1,59 +1,18 @@
 <template>
   <section class="container">
-    <section class="topic-container">
-      <!-- <div class="topics">
-        <span class="topic-title">Topics:</span>
-        <button
-          :key="topicChoice"
-          :class="{ isActive: topicChoice === currentTopic }"
-          v-for="topicChoice in topicChoices"
-          @click="pushTopic"
-        >
-          {{ topicChoice }}
-        </button>
-      </div> -->
-      <!-- <div class="text-container">
-        <span class="prompt-titles">Base Prompts</span>
-        <div>
-          <span
-            :key="p.prompt"
-            :class="{ isActive: p.prompt === compiledPrompt }"
-            v-for="p in getCurrentTopicPrompts"
-            @click="pushPrompt"
-            class="text"
-          >
-            {{ p.prompt }}
-          </span>
-        </div>
-        <span class="prompt-titles">Roles</span>
-        <div>
-          <span
-            :key="r.role"
-            :class="{ isActive: r.role === role }"
-            v-for="r in getCurrentRolePrompts"
-            class="text"
-            @click="pushRole"
-            draggable="true"
-          >
-            {{ r.role }}
-          </span>
-        </div> -->
-      <!-- </div> -->
       <PromptComponent />
-      <section class="input-container">
-      <GrowingFieldset :value="store.currentPrompt" @update:value="store.currentPrompt = $event" />
-      <div class="btn-container">
-        <button class="cta" @click="streamChatResponse">Get Answer</button>
-      </div>
-    </section>
-    </section>
-    <section class="response-container">
+      <section class="response-container">
       <div class="responses">
         <section :key="parsed.text" v-for="parsed in parseMarkdown">
-          <span class="model">Using model {{ store.model }}. With Prompt: {{ parsed.prompt }}</span>
+          <GrowingFieldset :value="parsed.prompt" @update:value="store.currentPrompt = $event"
+        @stream="streamChatResponse" />
+          <span class="model">Using model {{ store.model }}.</span>
           <div v-html="parsed.text" class="response"></div>
         </section>
       </div>
+    </section>
+    <section :style="{border: '1px solid black', width: '250px', height: '250px'}">
+
     </section>
   </section>
 </template>
@@ -61,7 +20,6 @@
 <script lang="ts">
 import { store } from '../store/store'
 import { BASE_API_URL } from '@/utils/urlHandler'
-// import { buildSentence } from '../utils/promptBuilder/promptBuilder'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import hljs from 'highlightjs'
@@ -104,7 +62,7 @@ export default {
       compiledPrompt: '',
       role: '',
       activeTopic: false,
-      responses: [{ text: '', prompt: '' }],
+      responses: [{ text: '', prompt: ''}],
       index: 0,
       response: '',
       multiple: [],
@@ -112,32 +70,17 @@ export default {
     }
   },
   computed: {
-    // getCurrentTopicPrompts() {
-    //   const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
-    //   return store.topics[currentTopic].prompts
-    // },
-    // getCurrentRolePrompts() {
-    //   const currentTopic = this.currentTopic === '' ? 'sql' : this.currentTopic
-    //   return store.topics[currentTopic].roles
-    // },
     parseMarkdown() {
-      return this.responses.map((response) => {
-        return {
-          ...response,
-          text: DOMPurify.sanitize(marked(response.text, { renderer }))
-        }
-      })
-    },
-    parseCompiledPrompt() {
-      let words = this.compiledPrompt.split(' ')
-      return words
-        .map((word, index) => {
-          if (index === 0) {
-            return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()
+      return this.responses.map((response, index: number) => {
+        if (index === this.index) {
+          return {
+            ...response,
+            prompt: store.currentPrompt,
+            text: DOMPurify.sanitize(marked(response.text, { renderer }))
           }
-          return word.toLowerCase()
-        })
-        .join(' ')
+        }
+        return response;
+      })
     }
   },
   methods: {
@@ -147,7 +90,7 @@ export default {
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_API_URL}/stream/chat?prompt=${this.store.currentPrompt}&model=${store.model}`,
+          `${BASE_API_URL}/stream/chat?prompt=${store.currentPrompt}&model=${store.model}`,
           {
             method: 'GET',
             headers: {
@@ -165,9 +108,8 @@ export default {
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
-          console.log(chunk)
           this.responses[this.index].text += chunk
-          this.responses[this.index].prompt = this.prompt
+          this.responses[this.index].prompt = store.currentPrompt
         }
         this.incResponseIndex()
         this.responses.push({
@@ -177,118 +119,52 @@ export default {
       } catch (error: any) {
         throw new Error(error)
       }
-    },
-    pushPrompt(e: any) {
-      this.compiledPrompt = e.target.textContent;
-    },
-    pushRole(e: any) {
-      this.role = e.target.textContent;
-    },
-    pushTopic() {
-      // this.currentTopic = e.target.textContent;
-      this.prompt = ''
-      this.role = ''
-    },
-    buildPrompt() {
-      // this.prompt = buildSentence(this.currentTopic, this.compiledPrompt, this.role)
-    },
-    checkValues() {
-      // const currentPrompt = this.compiledPrompt !== ''
-      // const currentRole = this.role !== ''
-      // const currentTopic = this.currentTopic !== ''
-      // if (currentPrompt && currentRole && currentTopic) {
-      //   this.buildPrompt()
-      // }
-    }
-  },
-  watch: {
-    compiledPrompt: {
-      immediate: true,
-      handler() {
-        this.checkValues()
-      }
-    },
-    role: {
-      immediate: true,
-      handler() {
-        this.checkValues()
-      }
-    },
-    currentTopic: {
-      immediate: true,
-      handler() {
-        this.checkValues()
-      }
     }
   }
 }
 </script>
 
 <style>
+.model {
+  display: flex;
+  justify-content: center;
+}
+
 .container {
-  height: 100vh;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-gap: 10px;
-  align-items: center;
-  align-content: center;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-gap: 1rem;
 }
 
 .input-container {
   width: 100%;
 }
 
-.topic-container {
-  display: flex;
-  justify-content: center;
-  font-weight: bold;
-  flex-direction: column;
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
-}
-
-.container > .model {
+.container>.model {
   height: 10px;
 }
 
 .response-container {
-  max-width: 100vw;
+  max-width: 100%;
+  max-height: 100vh;
   padding: 10px;
   height: 100%;
+  overflow: scroll;
 }
 
 .responses {
-  height: 35vw;
-  max-width: 50vw;
+  max-width: 55vw;
   overflow: auto;
   padding: 0.75rem;
 }
 
-.responses > section {
+.responses>section {
   margin: 0.75rem 0;
 }
 
 .response {
   margin-right: 0.75rem;
-}
-
-.multiple-container {
-  overflow-y: scroll;
-  max-height: 50vh;
-  max-width: 100vw;
-  margin: 1rem 0;
-  padding-right: 1rem;
-  margin-right: 1rem;
-}
-
-.btn-container {
-  display: flex;
-  justify-content: center;
-}
-
-button.cta {
-  width: 100%;
 }
 
 .prompt-titles {
@@ -304,7 +180,6 @@ button.cta {
   }
 
   .responses {
-    max-width: 55vw;
     margin: auto;
   }
 
@@ -312,10 +187,6 @@ button.cta {
     display: flex;
     flex-direction: column;
     display: none;
-  }
-
-  button.cta {
-    width: 30vw;
   }
 }
 </style>

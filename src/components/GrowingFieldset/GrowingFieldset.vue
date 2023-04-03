@@ -1,21 +1,32 @@
 <template>
   <div class="fieldset-container">
     <fieldset :style="{ height: fieldsetHeight }">
-      <legend>Prompt</legend>
       <textarea :value="value" @input="onInputValue" ref="textarea"></textarea>
+      <button class="cta" @click="$emit('stream')">
+        <img :src="icon" alt="">
+      </button>
     </fieldset>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
+import sendIcon from '../../assets/icon-send.svg';
 
 export default defineComponent({
   name: 'GrowingFieldset',
-  props: {
-    value: String,
+  data () {
+    return {
+      icon: sendIcon
+    }
   },
-  emits: ['update:value', 'update:prompt'],
+  props: {
+    value: {
+      type: String,
+      required: true
+    },
+  },
+  emits: ['update:value', 'stream'],
   setup(props, { emit }) {
     const text = ref(props.value || '');
     const fieldsetHeight = ref('auto');
@@ -46,16 +57,17 @@ export default defineComponent({
 
 <style>
 .fieldset-container {
-  margin: 1.25rem 0;
+  margin: 1.25rem auto;
 }
 
 fieldset {
   display: flex;
   align-items: center;
-  border-radius: 16px;
-  border-color: var(--main-accent-color-light);
-  max-width: 30vw;
+  outline: none;
+  border: none;
   resize: none;
+  max-width: 75%;
+  margin: 0 auto;
 }
 
 textarea {
@@ -68,9 +80,12 @@ textarea {
   border-radius: 8px
 }
 
+button.cta {
+  background-color: var(--main-color-darkgreen);
+}
+
 @media screen and (max-width: 1600px) {
   fieldset {
-    max-width: 55vw;
     margin: auto;
   }
 }
