@@ -55,8 +55,9 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 .fieldset-container {
+  width: 100%;
   margin: 1.25rem auto;
 }
 
@@ -66,8 +67,8 @@ fieldset {
   outline: none;
   border: none;
   resize: none;
-  max-width: 75%;
   margin: 0 auto;
+  width: 100%;
 }
 
 textarea {
@@ -77,7 +78,9 @@ textarea {
   font-size: 16px;
   line-height: 1.4;
   font-family: inherit;
-  border-radius: 8px
+  border-radius: 8px;
+  resize: none;
+  height: 75px;
 }
 
 button.cta {

@@ -45,11 +45,12 @@ body {
 .styled-scrollbars {
   /* Foreground, Background */
   scrollbar-color: var(--main-color-darkgreen);
+  background: var(--main-color-darkgreen);
   border-radius: 8px;
 }
 *::-webkit-scrollbar {
   width: 5px; /* Mostly for vertical scrollbars */
-  height: 5px; /* Mostly for horizontal scrollbars */
+  height: 0;
   border-radius: 16px;
 }
 *::-webkit-scrollbar-thumb { /* Foreground */
@@ -58,7 +59,7 @@ body {
 }
 *::-webkit-scrollbar-track { /* Background */
   border-radius: 16px;
-
+  background: var(--main-accent-color-darkgreen);
 }
 
 @media only screen and (max-width: 1600px) {

@@ -11,7 +11,7 @@
         </section>
       </div>
     </section>
-    <section :style="{border: '1px solid black', width: '250px', height: '250px'}">
+    <section>
 
     </section>
   </section>
@@ -181,12 +181,6 @@ export default {
 
   .responses {
     margin: auto;
-  }
-
-  .text-container {
-    display: flex;
-    flex-direction: column;
-    display: none;
   }
 }
 </style>
