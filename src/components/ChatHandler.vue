@@ -3,11 +3,14 @@
       <PromptComponent />
       <section class="response-container">
       <div class="responses">
-        <section :key="parsed.text" v-for="parsed in parseMarkdown">
+        <section :key="index" v-for="parsed, index in parseMarkdown">
           <GrowingFieldset :value="parsed.prompt" @update:value="store.currentPrompt = $event"
         @stream="streamChatResponse" />
           <span class="model">Using model {{ store.model }}.</span>
           <div v-html="parsed.text" class="response"></div>
+          <div>
+            <button v-if="!processing" @click="saveResponse(index)">Save</button>
+          </div>
         </section>
       </div>
     </section>
@@ -47,8 +50,9 @@ interface Data {
   responses: Responses[]
   index: number
   multiple: any
-  store: any
   activeTopic: boolean
+  processing: boolean
+  store: any
 }
 
 export default {
@@ -66,6 +70,7 @@ export default {
       index: 0,
       response: '',
       multiple: [],
+      processing: true,
       store
     }
   },
@@ -87,6 +92,24 @@ export default {
     incResponseIndex() {
       this.index++
     },
+    async saveResponse (id: number) {
+      console.log(id);
+      try {
+        const responseToSave = this.responses[id];
+        console.log(responseToSave);
+        const response = await fetch(`${BASE_API_URL}/user/save-response`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(responseToSave)
+        });
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
     async streamChatResponse() {
       try {
         const response = await fetch(
@@ -98,13 +121,12 @@ export default {
             }
           }
         )
-        let processing = true
         const reader = response.body?.getReader()
         const decoder = new TextDecoder('utf-8')
-        while (processing) {
+        while (this.processing) {
           const read: any = await reader?.read()
           if (read.done) {
-            processing = false
+            this.processing = false
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
