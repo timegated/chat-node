@@ -4,8 +4,6 @@
       <section class="response-container">
       <div class="responses">
         <section :key="index" v-for="parsed, index in parseMarkdown">
-          <GrowingFieldset :value="parsed.prompt" @update:value="store.currentPrompt = $event"
-        @stream="streamChatResponse" />
           <span class="model">Using model {{ store.model }}.</span>
           <div v-html="parsed.text" class="response"></div>
           <div>
@@ -15,9 +13,13 @@
       </div>
     </section>
     <section>
-
+      Prompts
+      <button @click="generatePrompts">Generate Prompts</button>
+      <div v-html="parseGeneratedPrompts"></div>
     </section>
   </section>
+  <GrowingFieldset :value="store.currentPrompt" @update:value="store.currentPrompt = $event"
+  @stream="streamChatResponse" />
 </template>
 
 <script lang="ts">
@@ -40,11 +42,12 @@ marked.setOptions({
 interface Responses {
   text: string
   prompt: string
+  topic: string
 }
 
 interface Data {
   prompt: string
-  compiledPrompt: string
+  generatedPrompts: string
   role: string
   response: string
   responses: Responses[]
@@ -63,10 +66,10 @@ export default {
   data(): Data {
     return {
       prompt: '',
-      compiledPrompt: '',
+      generatedPrompts: '',
       role: '',
       activeTopic: false,
-      responses: [{ text: '', prompt: ''}],
+      responses: [{ text: '', prompt: '', topic: ''}],
       index: 0,
       response: '',
       multiple: [],
@@ -86,6 +89,9 @@ export default {
         }
         return response;
       })
+    },
+    parseGeneratedPrompts () {
+      return DOMPurify.sanitize(marked(this.generatedPrompts, { renderer }))
     }
   },
   methods: {
@@ -132,11 +138,46 @@ export default {
           const chunk = decoder.decode(read.value, { stream: true })
           this.responses[this.index].text += chunk
           this.responses[this.index].prompt = store.currentPrompt
+          this.responses[this.index].topic = store.currentTopic;
         }
         this.incResponseIndex()
         this.responses.push({
           text: '',
-          prompt: ''
+          prompt: '',
+          topic: ''
+        })
+      } catch (error: any) {
+        throw new Error(error)
+      }
+    },
+    async generatePrompts() {
+      try {
+        if (this.generatedPrompts.length > 0) this.generatedPrompts = '';
+        const response = await fetch(
+          `${BASE_API_URL}/stream/create-prompts?topic=${store.currentTopicName}`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'text/stream',
+            }
+          }
+        )
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder('utf-8')
+        while (this.processing) {
+          const read: any = await reader?.read()
+          if (read.done) {
+            this.processing = false
+            break
+          }
+          const chunk = decoder.decode(read.value, { stream: true })
+          this.generatedPrompts += chunk;
+        }
+        this.incResponseIndex()
+        this.responses.push({
+          text: '',
+          prompt: '',
+          topic: ''
         })
       } catch (error: any) {
         throw new Error(error)

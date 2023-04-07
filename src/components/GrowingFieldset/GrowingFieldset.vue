@@ -57,8 +57,11 @@ export default defineComponent({
 
 <style scoped>
 .fieldset-container {
-  width: 100%;
-  margin: 1.25rem auto;
+  width: 50%;
+  margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  left: 25%;
 }
 
 fieldset {
@@ -78,13 +81,15 @@ textarea {
   font-size: 16px;
   line-height: 1.4;
   font-family: inherit;
-  border-radius: 8px;
+  border-radius: 16px 0 0 16px;
   resize: none;
   height: 75px;
 }
 
 button.cta {
   background-color: var(--main-color-darkgreen);
+  border-radius: 0px 16px 16px 0;
+  height: 7.75vh;
 }
 
 @media screen and (max-width: 1600px) {

@@ -14,6 +14,8 @@ export interface GlobalData {
   topics: Topics[],
   prompts: Prompts[],
   currentPrompt: string;
+  currentTopic: string;
+  currentTopicName: string;
 }
 
 export const store: GlobalData = reactive({
@@ -21,4 +23,6 @@ export const store: GlobalData = reactive({
   topics: [] as Topics[],
   prompts: [] as Prompts[],
   currentPrompt: '',
+  currentTopic: '',
+  currentTopicName: ''
 });
