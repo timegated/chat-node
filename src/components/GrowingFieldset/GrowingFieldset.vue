@@ -31,9 +31,9 @@ export default defineComponent({
     const text = ref(props.value || '');
     const fieldsetHeight = ref('auto');
 
-    const updateFieldsetHeight = () => {
-      fieldsetHeight.value = `${textareaRef?.value?.scrollHeight ?? 100}px`;
-    }
+    // const updateFieldsetHeight = () => {
+    //   fieldsetHeight.value = `${textareaRef?.value?.scrollHeight ?? 50}px`;
+    // }
 
     const textareaRef = ref<any>(null);
     const onInputValue = (event: any): void => {
@@ -46,7 +46,7 @@ export default defineComponent({
     watch(() => props.value, (newValue) => {
       if (newValue !== text.value) {
         text.value = newValue || '';
-        updateFieldsetHeight();
+        // updateFieldsetHeight();
       }
     });
 

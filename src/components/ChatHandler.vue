@@ -6,16 +6,20 @@
         <section :key="index" v-for="parsed, index in parseMarkdown">
           <span class="model">Using model {{ store.model }}.</span>
           <div v-html="parsed.text" class="response"></div>
-          <div>
+          <!-- <div>
             <button v-if="!processing" @click="saveResponse(index)">Save</button>
-          </div>
+          </div> -->
         </section>
       </div>
     </section>
-    <section>
-      Prompts
-      <button @click="generatePrompts">Generate Prompts</button>
-      <div v-html="parseGeneratedPrompts"></div>
+    <section class="generated-prompts">
+      <div>
+        <span :style="{fontWeight: 'bold' }">Generate Prompts for topic: {{ store.currentTopicName }}</span>
+      </div>
+      <button class="generate-prompt-btn" @click="generatePrompts">Generate</button>
+      <button class="generated-prompt-text" v-for="item, index in createPromptArray" :key="index" @click="pushGeneratedPrompt">
+        {{ item }}
+      </button>
     </section>
   </section>
   <GrowingFieldset :value="store.currentPrompt" @update:value="store.currentPrompt = $event"
@@ -47,7 +51,8 @@ interface Responses {
 
 interface Data {
   prompt: string
-  generatedPrompts: string
+  generatedPromptText: string
+  generatedPrompts: string[]
   role: string
   response: string
   responses: Responses[]
@@ -66,7 +71,8 @@ export default {
   data(): Data {
     return {
       prompt: '',
-      generatedPrompts: '',
+      generatedPromptText: '',
+      generatedPrompts: [],
       role: '',
       activeTopic: false,
       responses: [{ text: '', prompt: '', topic: ''}],
@@ -90,19 +96,24 @@ export default {
         return response;
       })
     },
-    parseGeneratedPrompts () {
-      return DOMPurify.sanitize(marked(this.generatedPrompts, { renderer }))
-    }
+    parsegeneratedPromptText () {
+      return DOMPurify.sanitize(marked(this.generatedPromptText, { renderer }))
+    },
+    createPromptArray () {
+      const listText = this.generatedPromptText.replace(/-/g, '').split('\n');
+      return listText;
+    },
   },
   methods: {
     incResponseIndex() {
       this.index++
     },
+    pushGeneratedPrompt (e: any) {
+      this.store.currentPrompt = e.target.textContent
+    },
     async saveResponse (id: number) {
-      console.log(id);
       try {
         const responseToSave = this.responses[id];
-        console.log(responseToSave);
         const response = await fetch(`${BASE_API_URL}/user/save-response`, {
           method: 'POST',
           headers: {
@@ -110,7 +121,6 @@ export default {
           },
           body: JSON.stringify(responseToSave)
         });
-        console.log(response);
       } catch (error) {
         console.error(error);
         throw error;
@@ -127,12 +137,19 @@ export default {
             }
           }
         )
+        let processing = true;
         const reader = response.body?.getReader()
         const decoder = new TextDecoder('utf-8')
-        while (this.processing) {
+        while (processing) {
           const read: any = await reader?.read()
           if (read.done) {
-            this.processing = false
+            processing = false
+            this.incResponseIndex()
+            this.responses.push({
+              text: '',
+              prompt: '',
+              topic: ''
+            })
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
@@ -140,19 +157,13 @@ export default {
           this.responses[this.index].prompt = store.currentPrompt
           this.responses[this.index].topic = store.currentTopic;
         }
-        this.incResponseIndex()
-        this.responses.push({
-          text: '',
-          prompt: '',
-          topic: ''
-        })
       } catch (error: any) {
         throw new Error(error)
       }
     },
     async generatePrompts() {
       try {
-        if (this.generatedPrompts.length > 0) this.generatedPrompts = '';
+        if (this.generatedPromptText.length > 0) this.generatedPromptText = '';
         const response = await fetch(
           `${BASE_API_URL}/stream/create-prompts?topic=${store.currentTopicName}`,
           {
@@ -161,24 +172,19 @@ export default {
               'Accept': 'text/stream',
             }
           }
-        )
+        );
+        let processing = true;
         const reader = response.body?.getReader()
         const decoder = new TextDecoder('utf-8')
-        while (this.processing) {
+        while (processing) {
           const read: any = await reader?.read()
           if (read.done) {
-            this.processing = false
+            processing = false;
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
-          this.generatedPrompts += chunk;
+          this.generatedPromptText += chunk;
         }
-        this.incResponseIndex()
-        this.responses.push({
-          text: '',
-          prompt: '',
-          topic: ''
-        })
       } catch (error: any) {
         throw new Error(error)
       }
@@ -212,7 +218,7 @@ export default {
   max-width: 100%;
   max-height: 100vh;
   padding: 10px;
-  height: 100%;
+  height: 85%;
   overflow: scroll;
 }
 
@@ -233,6 +239,28 @@ export default {
 .prompt-titles {
   font-weight: bold;
   font-size: 18px;
+}
+
+.generated-prompts {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.generate-prompt-btn {
+  width: 30%;
+}
+
+.generated-prompt-text {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+}
+
+.generated-prompt-text {
+  background: var(--main-color-darkgreen);
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
 }
 
 @media screen and (max-width: 1600px) {
