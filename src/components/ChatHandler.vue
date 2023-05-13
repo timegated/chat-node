@@ -36,8 +36,6 @@
 <script lang="ts">
 import { store } from '../store/store'
 import { BASE_API_URL } from '@/utils/urlHandler'
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
 import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 import PromptComponent from './Prompts/PromptComponent.vue'
 
