@@ -110,7 +110,7 @@ export default {
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_API_URL}/stream?prompt=${store.currentPrompt}&model=${store.model}`,
+          `${BASE_API_URL}/stream?prompt=${store.currentPrompt}&modelChoice=${store.model}`,
           {
             method: 'GET',
             headers: {
