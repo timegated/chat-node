@@ -1,54 +1,62 @@
 <template>
   <section class="container">
-      <PromptComponent />
-      <section class="response-container">
+    <PromptComponent />
+    <section class="response-container">
       <div class="responses">
-        <section :key="parsed.text" v-for="parsed in parseMarkdown">
-          <GrowingFieldset :value="parsed.prompt" @update:value="store.currentPrompt = $event"
-        @stream="streamChatResponse" />
+        <section :key="index" v-for="(parsed, index) in responses">
           <span class="model">Using model {{ store.model }}.</span>
-          <div v-html="parsed.text" class="response"></div>
+          <div v-markdown="parsed.text" class="response"></div>
         </section>
       </div>
     </section>
-    <section :style="{border: '1px solid black', width: '250px', height: '250px'}">
-
+    <section class="generated-prompts">
+      <div>
+        <span :style="{ fontWeight: 'bold' }"
+          >Generate Prompts for topic: {{ store.currentTopicName }}</span
+        >
+      </div>
+      <button class="generate-prompt-btn" @click="generatePrompts">Generate</button>
+      <button
+        class="generated-prompt-text"
+        v-for="(item, index) in createPromptArray"
+        :key="index"
+        @click="pushGeneratedPrompt"
+      >
+        {{ item }}
+      </button>
     </section>
   </section>
+  <GrowingFieldset
+    :value="store.currentPrompt"
+    @update:value="store.currentPrompt = $event"
+    @stream="streamChatResponse"
+  />
 </template>
 
 <script lang="ts">
 import { store } from '../store/store'
 import { BASE_API_URL } from '@/utils/urlHandler'
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
-import hljs from 'highlightjs'
-import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue';
+import GrowingFieldset from '@/components/GrowingFieldset/GrowingFieldset.vue'
 import PromptComponent from './Prompts/PromptComponent.vue'
-
-const renderer = new marked.Renderer()
-marked.setOptions({
-  highlight: function (code) {
-    return hljs.highlightAuto(code).value
-  },
-  async: true
-})
 
 interface Responses {
   text: string
   prompt: string
+  topic: string
 }
 
 interface Data {
   prompt: string
-  compiledPrompt: string
+  generatedPromptText: string
+  generatedPrompts: string[]
   role: string
   response: string
   responses: Responses[]
   index: number
   multiple: any
-  store: any
   activeTopic: boolean
+  processing: boolean
+  store: any
 }
 
 export default {
@@ -59,42 +67,90 @@ export default {
   data(): Data {
     return {
       prompt: '',
-      compiledPrompt: '',
+      generatedPromptText: '',
+      generatedPrompts: [],
       role: '',
       activeTopic: false,
-      responses: [{ text: '', prompt: ''}],
+      responses: [{ text: '', prompt: '', topic: '' }],
       index: 0,
       response: '',
       multiple: [],
+      processing: true,
       store
     }
   },
   computed: {
-    parseMarkdown() {
-      return this.responses.map((response, index: number) => {
-        if (index === this.index) {
-          return {
-            ...response,
-            prompt: store.currentPrompt,
-            text: DOMPurify.sanitize(marked(response.text, { renderer }))
-          }
-        }
-        return response;
-      })
+    createPromptArray() {
+      const listText = this.generatedPromptText.replace(/-/g, '').split('\n')
+      return listText
     }
   },
   methods: {
     incResponseIndex() {
       this.index++
     },
+    pushGeneratedPrompt(e: any) {
+      this.store.currentPrompt = e.target.textContent
+    },
+    async saveResponse(id: number) {
+      try {
+        const responseToSave = this.responses[id]
+        const response = await fetch(`${BASE_API_URL}/user/save-response`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(responseToSave)
+        })
+      } catch (error) {
+        console.error(error)
+        throw error
+      }
+    },
     async streamChatResponse() {
       try {
         const response = await fetch(
-          `${BASE_API_URL}/stream/chat?prompt=${store.currentPrompt}&model=${store.model}`,
+          `${BASE_API_URL}/stream?prompt=${store.currentPrompt}&modelChoice=${store.model}`,
           {
             method: 'GET',
             headers: {
-              'Accept': 'text/stream',
+              Accept: 'event/stream'
+            }
+          }
+        )
+        let processing = true
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder('utf-8')
+        while (processing) {
+          const read: any = await reader?.read()
+          if (read.done) {
+            processing = false
+            this.incResponseIndex()
+            this.responses.push({
+              text: '',
+              prompt: '',
+              topic: ''
+            })
+            break
+          }
+          const chunk = decoder.decode(read.value, { stream: true })
+          this.responses[this.index].text += chunk
+          this.responses[this.index].prompt = store.currentPrompt
+          this.responses[this.index].topic = store.currentTopic
+        }
+      } catch (error: any) {
+        throw new Error(error)
+      }
+    },
+    async generatePrompts() {
+      try {
+        if (this.generatedPromptText.length > 0) this.generatedPromptText = ''
+        const response = await fetch(
+          `${BASE_API_URL}/stream/create-prompts?topic=${store.currentTopicName}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'event/stream'
             }
           }
         )
@@ -108,19 +164,13 @@ export default {
             break
           }
           const chunk = decoder.decode(read.value, { stream: true })
-          this.responses[this.index].text += chunk
-          this.responses[this.index].prompt = store.currentPrompt
+          this.generatedPromptText += chunk
         }
-        this.incResponseIndex()
-        this.responses.push({
-          text: '',
-          prompt: ''
-        })
       } catch (error: any) {
         throw new Error(error)
       }
     }
-  }
+  },
 }
 </script>
 
@@ -135,13 +185,14 @@ export default {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   grid-gap: 1rem;
+  height: 100vh;
 }
 
 .input-container {
   width: 100%;
 }
 
-.container>.model {
+.container > .model {
   height: 10px;
 }
 
@@ -149,7 +200,7 @@ export default {
   max-width: 100%;
   max-height: 100vh;
   padding: 10px;
-  height: 100%;
+  height: 85%;
   overflow: scroll;
 }
 
@@ -159,7 +210,7 @@ export default {
   padding: 0.75rem;
 }
 
-.responses>section {
+.responses > section {
   margin: 0.75rem 0;
 }
 
@@ -172,6 +223,28 @@ export default {
   font-size: 18px;
 }
 
+.generated-prompts {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.generate-prompt-btn {
+  width: 30%;
+}
+
+.generated-prompt-text {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+}
+
+.generated-prompt-text {
+  background: var(--main-color-darkgreen);
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
 @media screen and (max-width: 1600px) {
   .container {
     display: flex;
@@ -181,12 +254,6 @@ export default {
 
   .responses {
     margin: auto;
-  }
-
-  .text-container {
-    display: flex;
-    flex-direction: column;
-    display: none;
   }
 }
 </style>

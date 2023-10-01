@@ -6,7 +6,7 @@
         :key="topic.topicid"
         :class="{ isActive: topic.topicname === currentTopic }"
         v-for="topic in store.topics"
-        @click="pushTopic"
+        @click="(e) => pushTopic(e, topic.topicid, topic.topicname)"
       >
         {{ topic.topicname }}
       </button>
@@ -43,8 +43,10 @@ export default {
     }
   },
   methods: {
-    pushTopic(e: any) {
+    pushTopic(e: any, topicId: string, topicName: string) {
       this.currentTopic = e.target.textContent;
+      this.store.currentTopic = topicId;
+      this.store.currentTopicName = topicName
     },
     pushPrompt(e: any) {
       this.currentPrompt = e.target.textContent;

@@ -31,9 +31,9 @@ export default defineComponent({
     const text = ref(props.value || '');
     const fieldsetHeight = ref('auto');
 
-    const updateFieldsetHeight = () => {
-      fieldsetHeight.value = `${textareaRef?.value?.scrollHeight ?? 100}px`;
-    }
+    // const updateFieldsetHeight = () => {
+    //   fieldsetHeight.value = `${textareaRef?.value?.scrollHeight ?? 50}px`;
+    // }
 
     const textareaRef = ref<any>(null);
     const onInputValue = (event: any): void => {
@@ -46,7 +46,7 @@ export default defineComponent({
     watch(() => props.value, (newValue) => {
       if (newValue !== text.value) {
         text.value = newValue || '';
-        updateFieldsetHeight();
+        // updateFieldsetHeight();
       }
     });
 
@@ -55,9 +55,13 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 .fieldset-container {
-  margin: 1.25rem auto;
+  width: 50%;
+  margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  left: 25%;
 }
 
 fieldset {
@@ -66,8 +70,8 @@ fieldset {
   outline: none;
   border: none;
   resize: none;
-  max-width: 75%;
   margin: 0 auto;
+  width: 100%;
 }
 
 textarea {
@@ -77,11 +81,15 @@ textarea {
   font-size: 16px;
   line-height: 1.4;
   font-family: inherit;
-  border-radius: 8px
+  border-radius: 16px 0 0 16px;
+  resize: none;
+  height: 75px;
 }
 
 button.cta {
   background-color: var(--main-color-darkgreen);
+  border-radius: 0px 16px 16px 0;
+  height: 7.75vh;
 }
 
 @media screen and (max-width: 1600px) {
