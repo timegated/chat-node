@@ -15,7 +15,7 @@
           >Generate Prompts for topic: {{ store.currentTopicName }}</span
         >
       </div>
-      <button class="generate-prompt-btn" @click="generatePrompts">Generate</button>
+      <button class="generate-prompt-btn" @click="sseGeneratePrompts">Generate</button>
       <button
         class="generated-prompt-text"
         v-for="(item, index) in createPromptArray"
@@ -29,7 +29,7 @@
   <GrowingFieldset
     :value="store.currentPrompt"
     @update:value="store.currentPrompt = $event"
-    @stream="streamChatResponse"
+    @stream="sseChatResponse"
   />
 </template>
 
@@ -81,7 +81,7 @@ export default {
   },
   computed: {
     createPromptArray() {
-      const listText = this.generatedPromptText.replace(/-/g, '').split('\n')
+      const listText = this.generatedPromptText.replace(/-/g, '').split('.')
       return listText
     }
   },
@@ -107,70 +107,69 @@ export default {
         throw error
       }
     },
-    async streamChatResponse() {
+    async sseChatResponse() {
       try {
-        const response = await fetch(
-          `${BASE_API_URL}/stream?prompt=${store.currentPrompt}&modelChoice=${store.model}`,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'event/stream'
-            }
-          }
-        )
-        let processing = true
-        const reader = response.body?.getReader()
-        const decoder = new TextDecoder('utf-8')
-        while (processing) {
-          const read: any = await reader?.read()
-          if (read.done) {
-            processing = false
-            this.incResponseIndex()
-            this.responses.push({
-              text: '',
-              prompt: '',
-              topic: ''
-            })
-            break
-          }
-          const chunk = decoder.decode(read.value, { stream: true })
-          this.responses[this.index].text += chunk
+        const url = `${BASE_API_URL}/${
+          store.model.includes('text') ? 'stream' : 'stream/chat'
+        }?prompt=${store.currentPrompt}&modelChoice=${store.model}`
+        const eventSource = new EventSource(url)
+
+        eventSource.onmessage = (event) => {
+          this.responses[this.index].text += event.data;
           this.responses[this.index].prompt = store.currentPrompt
           this.responses[this.index].topic = store.currentTopic
         }
+
+        eventSource.onopen = (event) => {
+          console.log('Connection opened', event)
+        }
+
+        eventSource.onerror = (event) => {
+          console.log('Error occurred', event)
+          eventSource.close()
+        }
+
+        eventSource.addEventListener('done', (event) => {
+          this.incResponseIndex();
+          this.responses.push({
+            text: '',
+            prompt: '',
+            topic: ''
+          })
+          eventSource.close()
+        })
       } catch (error: any) {
         throw new Error(error)
       }
     },
-    async generatePrompts() {
+    async sseGeneratePrompts() {
+      this.generatedPromptText = ""
       try {
-        if (this.generatedPromptText.length > 0) this.generatedPromptText = ''
-        const response = await fetch(
-          `${BASE_API_URL}/stream/create-prompts?topic=${store.currentTopicName}`,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'event/stream'
-            }
-          }
-        )
-        let processing = true
-        const reader = response.body?.getReader()
-        const decoder = new TextDecoder('utf-8')
-        while (processing) {
-          const read: any = await reader?.read()
-          if (read.done) {
-            processing = false
-            break
-          }
-          const chunk = decoder.decode(read.value, { stream: true })
-          this.generatedPromptText += chunk
+        const url = `${BASE_API_URL}/stream/create-prompts?topic=${store.currentTopicName}`
+        const eventSource = new EventSource(url)
+
+        eventSource.onmessage = (event) => {
+          if (event.data === '') return;
+          this.generatedPromptText += event.data
         }
+
+        eventSource.onopen = (event) => {
+          console.log('Connection opened', event)
+        }
+
+        eventSource.onerror = (event) => {
+          console.log('Error occurred', event)
+          eventSource.close()
+        }
+
+        eventSource.addEventListener('done', (event) => {
+          eventSource.close() 
+        })
       } catch (error: any) {
         throw new Error(error)
       }
     }
-  },
+  }
 }
 </script>
 
