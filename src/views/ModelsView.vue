@@ -134,6 +134,7 @@ export default {
     },
     rediectToPromptPage(e: any) {
       this.store.model = e.target.parentElement.parentElement.childNodes[0].childNodes[0].textContent;
+      window.localStorage.setItem("model", e.target.parentElement.parentElement.childNodes[0].childNodes[0].textContent)
       this.$router.push('/prompts')
     },
     formatDate(dateNum: number) {

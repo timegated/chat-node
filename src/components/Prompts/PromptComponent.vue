@@ -12,7 +12,7 @@
       </button>
     </div>
     <span v-if="store.prompts.length" class="prompt-titles">Base Prompts</span>
-         <div class="text-container" :style="{overflow: 'scroll', maxHeight: '15vw', textAlign: 'left'}">
+         <div class="text-container" :style="{overflowY: 'scroll', textAlign: 'left'}">
           <div>
             <span
               :key="index"
@@ -76,19 +76,20 @@ export default {
 }
 </script>
 <style scoped>
-.topics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(100px, 1fr));
-  grid-gap: 5px;
-  margin-bottom: 4rem;
-}
-
 .topic-container {
   display: flex;
   font-weight: bold;
   flex-direction: column;
   margin-top: 0.5rem;
   margin-left: 0.5rem;
+  overflow-y: scroll;
+}
+
+.topics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  grid-gap: 5px;
+  margin-bottom: 4rem;
 }
 
 .topic-title {
@@ -101,7 +102,6 @@ export default {
   font-weight: bold;
   font-size: 14px;
 }
-
 
 .text-container > div {
   display: grid;

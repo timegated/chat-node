@@ -26,3 +26,16 @@ export const store: GlobalData = reactive({
   currentTopic: '',
   currentTopicName: ''
 });
+
+syncWithLocalStore(store);
+
+function syncWithLocalStore (store: GlobalData) {
+  const existingModel = window.localStorage.getItem("model");
+  if (existingModel) {
+    store.model = existingModel;
+    return store;
+  } else {
+    window.localStorage.setItem("model", store.model);
+    return 'text-davinci-003';
+  }
+}

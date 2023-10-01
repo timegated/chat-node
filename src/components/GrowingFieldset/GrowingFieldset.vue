@@ -1,7 +1,7 @@
 <template>
   <div class="fieldset-container">
     <fieldset :style="{ height: fieldsetHeight }">
-      <textarea :value="value" @input="onInputValue" ref="textarea"></textarea>
+      <textarea :value="value" @input="onInputValue" @keydown.enter="submit" ref="textarea"></textarea>
       <button class="cta" @click="$emit('stream')">
         <img :src="icon" alt="">
       </button>
@@ -31,9 +31,9 @@ export default defineComponent({
     const text = ref(props.value || '');
     const fieldsetHeight = ref('auto');
 
-    // const updateFieldsetHeight = () => {
-    //   fieldsetHeight.value = `${textareaRef?.value?.scrollHeight ?? 50}px`;
-    // }
+    const submit = (): void => {
+      emit('stream');
+    }
 
     const textareaRef = ref<any>(null);
     const onInputValue = (event: any): void => {
@@ -50,7 +50,7 @@ export default defineComponent({
       }
     });
 
-    return { text, fieldsetHeight, onInputValue, textareaRef };
+    return { text, fieldsetHeight, onInputValue, textareaRef, submit };
   }
 });
 </script>
@@ -59,8 +59,8 @@ export default defineComponent({
 .fieldset-container {
   width: 50%;
   margin: 0 auto;
-  position: absolute;
-  bottom: 0;
+  position: sticky;
+  bottom: 0px;
   left: 25%;
 }
 
@@ -81,7 +81,6 @@ textarea {
   font-size: 16px;
   line-height: 1.4;
   font-family: inherit;
-  border-radius: 16px 0 0 16px;
   resize: none;
   height: 75px;
 }

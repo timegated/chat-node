@@ -4,7 +4,8 @@
     <section class="response-container">
       <div class="responses">
         <section :key="index" v-for="(parsed, index) in responses">
-          <span class="model">Using model {{ store.model }}.</span>
+          <span class="model">{{ store.model }}.</span>
+          <div class="prompt">{{ parsed.prompt }}</div>
           <div v-markdown="parsed.text" class="response"></div>
         </section>
       </div>
@@ -119,7 +120,7 @@ export default {
           this.responses[this.index].prompt = store.currentPrompt
           this.responses[this.index].topic = store.currentTopic
         }
-
+        
         eventSource.onopen = (event) => {
           console.log('Connection opened', event)
         }
@@ -128,8 +129,9 @@ export default {
           console.log('Error occurred', event)
           eventSource.close()
         }
-
+        
         eventSource.addEventListener('done', (event) => {
+          this.store.currentPrompt = ""
           this.incResponseIndex();
           this.responses.push({
             text: '',
@@ -185,6 +187,7 @@ export default {
   grid-template-columns: 1fr 2fr 1fr;
   grid-gap: 1rem;
   height: 100vh;
+  overflow-y: scroll;
 }
 
 .input-container {
@@ -225,7 +228,6 @@ export default {
 .generated-prompts {
   display: flex;
   flex-direction: column;
-  overflow: scroll;
 }
 
 .generate-prompt-btn {
