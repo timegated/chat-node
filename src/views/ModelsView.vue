@@ -90,17 +90,15 @@ export default {
   },
   computed: {
     parseDates() {
-      return this.models.map((model) => {
-        return {
-          ...model,
-          permission: model.permission.map((perm) => {
-            return {
-              ...perm,
-              created: new Date(Number(perm.created) * 1000).toString().substring(0, 15)
-            }
-          })
-        }
-      })
+      if (this.models.length) {
+        return this.models.map((model) => {
+          return {
+            ...model,
+                created: new Date(Number(model.created) * 1000).toString().substring(0, 15)
+          }
+        })
+      }
+      return []
     }
   },
   methods: {
@@ -124,8 +122,10 @@ export default {
 
     },
     async getAllEngines(): Promise<void> {
+      console.log(BASE_API_URL)
       try {
         const engines = await axios.get(`${BASE_API_URL}/engines`)
+        console.log(engines.data)
         this.models = engines.data
       } catch (error) {
         console.error(error)
