@@ -19,7 +19,7 @@ export interface GlobalData {
 }
 
 export const store: GlobalData = reactive({
-  model: 'text-davinci-003',
+  model: 'gpt-3.5-turbo',
   topics: [] as Topics[],
   prompts: [] as Prompts[],
   currentPrompt: '',
@@ -36,6 +36,6 @@ function syncWithLocalStore (store: GlobalData) {
     return store;
   } else {
     window.localStorage.setItem("model", store.model);
-    return 'text-davinci-003';
+    return 'gpt-3.5-turbo';
   }
 }
